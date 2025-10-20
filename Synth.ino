@@ -1,5 +1,9 @@
 #include <AMY-Arduino.h>
 #include <Arduino.h>
+#include <Wire.h>
+#include <MCP23017.h>
+#define MCP23017_ADDR 0x27
+MCP23017 mcp = MCP23017(MCP23017_ADDR);
 
 int potPin = 1;   // GPIO 39
 int potValue = 0;  // Raw 0–4095
@@ -33,8 +37,20 @@ void test() {
 }
 
 void setup() {
+  Wire.begin(8, 9);
+  Wire.setClock(100000);
   Serial.begin(115200);
   Serial.println("AMY_Synth");
+
+  mcp.init();
+  mcp.portMode(MCP23017Port::A, 0b11111111);          //Port A as input
+  mcp.portMode(MCP23017Port::B, 0b11111111); //Port B as input
+
+  mcp.writeRegister(MCP23017Register::GPIO_A, 0x00);  //Reset port A 
+  mcp.writeRegister(MCP23017Register::GPIO_B, 0x00);  //Reset port B
+
+  mcp.writeRegister(MCP23017Register::IPOL_A, 0xFF);
+  mcp.writeRegister(MCP23017Register::IPOL_B, 0xFF);
 
   amy_config_t amy_config = amy_default_config();
   amy_config.features.startup_bleep = 0;
@@ -55,6 +71,11 @@ static bool led_state = 0;
 
 void loop() {
   // Your loop() must contain this call to amy:
+  uint8_t currentA;
+  uint8_t currentB;
+  currentA = mcp.readPort(MCP23017Port::A);
+  currentB = mcp.readPort(MCP23017Port::B);
+  
   amy_update();
   potValue = analogRead(potPin);
   cutoff = 100.0f + (potValue / 4095.0f) * (5000.0f - 100.0f);
@@ -79,6 +100,8 @@ void loop() {
 
     Serial.print("Filter cutoff: ");
     Serial.println(cutoff);
+    Serial.println(currentA);
+    Serial.println(currentB);
   }
 
  // small update interval
