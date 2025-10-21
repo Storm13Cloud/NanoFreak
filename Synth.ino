@@ -1,9 +1,8 @@
 #include <AMY-Arduino.h>
 #include <Arduino.h>
 #include <Wire.h>
-#include <MCP23017.h>
-#define MCP23017_ADDR 0x27
-MCP23017 mcp = MCP23017(MCP23017_ADDR);
+#include <Adafruit_MCP23X17.h>
+Adafruit_MCP23X17 mcp;
 
 int potPin = 1;   // GPIO 39
 int potValue = 0;  // Raw 0–4095
@@ -11,13 +10,29 @@ float cutoff = 0.0f;
 float lastCutoff = -1.0f;
 float resonance = 5.0f;  // starting resonance
 float targetResonance = 5.0f;
+int p1 = 0;
+int p2 = 1;
+int p3 = 2;
+int p4 = 3;
+int p5 = 4;
+int p6 = 5;
+int p7 = 8;
+int p8 = 9;
+int p9 = 10;
+int p10 = 11;
+int p11 = 12;
+int p12 = 13;
 
+int midiNote = 50;
+int currentNote = 0;
+
+int p1LastState = LOW;
+int p2LastState = LOW;
 
 void test() {
   amy_event e = amy_default_event();
   e.osc = 0;
   e.wave = SAW_UP;
-  //e.resonance = 5;
   e.filter_type = 1;
   amy_add_event(&e);
   e.osc = 0;
@@ -32,7 +47,14 @@ void test() {
   amy_add_event(&e);
   e.osc =0;
   e.velocity = 1;
-  e.midi_note = 50;
+  e.midi_note = currentNote;
+  amy_add_event(&e);
+}
+
+void testOff() {
+  amy_event e = amy_default_event();
+  e.osc =0;
+  e.velocity = 0;
   amy_add_event(&e);
 }
 
@@ -41,17 +63,18 @@ void setup() {
   Wire.setClock(100000);
   Serial.begin(115200);
   Serial.println("AMY_Synth");
+  if (!mcp.begin_I2C(0x27)) {
+  //if (!mcp.begin_SPI(CS_PIN)) {
+    Serial.println("Error.");
+    while (1);
+  }
 
-  mcp.init();
-  mcp.portMode(MCP23017Port::A, 0b11111111);          //Port A as input
-  mcp.portMode(MCP23017Port::B, 0b11111111); //Port B as input
-
-  mcp.writeRegister(MCP23017Register::GPIO_A, 0x00);  //Reset port A 
-  mcp.writeRegister(MCP23017Register::GPIO_B, 0x00);  //Reset port B
-
-  mcp.writeRegister(MCP23017Register::IPOL_A, 0xFF);
-  mcp.writeRegister(MCP23017Register::IPOL_B, 0xFF);
-
+  mcp.pinMode(p1, INPUT_PULLUP);
+  mcp.pinMode(p2, INPUT_PULLUP);
+  mcp.pinMode(p3, INPUT_PULLUP);
+  mcp.pinMode(p11, INPUT_PULLUP);
+  mcp.pinMode(p12, INPUT_PULLUP);
+  
   amy_config_t amy_config = amy_default_config();
   amy_config.features.startup_bleep = 0;
   // Install the default_synths on synths (MIDI chans) 1, 2, and 10 (this is the default).
@@ -63,7 +86,7 @@ void setup() {
   amy_config.i2s_dout = 10;
   amy_start(amy_config);
   amy_live_start();
-  test();
+  //test();
 }
 static long last_millis = 0;
 static const long millis_interval = 250;
@@ -71,11 +94,35 @@ static bool led_state = 0;
 
 void loop() {
   // Your loop() must contain this call to amy:
-  uint8_t currentA;
-  uint8_t currentB;
-  currentA = mcp.readPort(MCP23017Port::A);
-  currentB = mcp.readPort(MCP23017Port::B);
+  int p1CurrentState = mcp.digitalRead(p1);
+  if (p1CurrentState == HIGH && p1LastState == LOW) {
+    currentNote = midiNote;
+    test();
+    Serial.println("p1 pressed");
+  }
+  if (p1CurrentState == LOW && p1LastState == HIGH) {
+    testOff();
+    Serial.println("p1 released");
+  }
+  int p2CurrentState = mcp.digitalRead(p2);
   
+  if (p2CurrentState == HIGH && p2LastState == LOW) {
+    currentNote = midiNote+1;
+    test();
+    Serial.println("p2 pressed");
+  }
+  if (p2CurrentState == LOW && p2LastState == HIGH) {
+    testOff();
+    Serial.println("p2 released");
+  }
+
+  if (mcp.digitalRead(p12)) {
+    Serial.println("Button p12 Pressed!");
+    delay(250);
+  }
+  p1LastState = p1CurrentState;
+  p2LastState = p2CurrentState;
+  delay(50);
   amy_update();
   potValue = analogRead(potPin);
   cutoff = 100.0f + (potValue / 4095.0f) * (5000.0f - 100.0f);
@@ -84,7 +131,6 @@ void loop() {
   if (fabs(cutoff - lastCutoff) > 5.0f) {
     lastCutoff = cutoff;
 
-    // Send update event to existing osc
     amy_event e = amy_default_event();
     e.osc = 0;             // target same osc
     e.filter_freq_coefs[0] = cutoff;
@@ -100,8 +146,6 @@ void loop() {
 
     Serial.print("Filter cutoff: ");
     Serial.println(cutoff);
-    Serial.println(currentA);
-    Serial.println(currentB);
   }
 
  // small update interval
