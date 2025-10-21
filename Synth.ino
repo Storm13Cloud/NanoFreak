@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_MCP23X17.h>
+#include <KeyPins.h>
 Adafruit_MCP23X17 mcp;
 
 int potPin = 1;   // GPIO 39
@@ -10,18 +11,7 @@ float cutoff = 0.0f;
 float lastCutoff = -1.0f;
 float resonance = 5.0f;  // starting resonance
 float targetResonance = 5.0f;
-int p1 = 0;
-int p2 = 1;
-int p3 = 2;
-int p4 = 3;
-int p5 = 4;
-int p6 = 5;
-int p7 = 8;
-int p8 = 9;
-int p9 = 10;
-int p10 = 11;
-int p11 = 12;
-int p12 = 13;
+
 
 int midiNote = 50;
 int currentNote = 0;
@@ -69,11 +59,18 @@ void setup() {
     while (1);
   }
 
-  mcp.pinMode(p1, INPUT_PULLUP);
-  mcp.pinMode(p2, INPUT_PULLUP);
-  mcp.pinMode(p3, INPUT_PULLUP);
-  mcp.pinMode(p11, INPUT_PULLUP);
-  mcp.pinMode(p12, INPUT_PULLUP);
+  mcp.pinMode(KEY1, INPUT_PULLUP);
+  mcp.pinMode(KEY2, INPUT_PULLUP);
+  mcp.pinMode(KEY3, INPUT_PULLUP);
+  mcp.pinMode(KEY4, INPUT_PULLUP);
+  mcp.pinMode(KEY5, INPUT_PULLUP);
+  mcp.pinMode(KEY6, INPUT_PULLUP);
+  mcp.pinMode(KEY7, INPUT_PULLUP);
+  mcp.pinMode(KEY8, INPUT_PULLUP);
+  mcp.pinMode(KEY9, INPUT_PULLUP);
+  mcp.pinMode(KEY10, INPUT_PULLUP);
+  mcp.pinMode(KEY11, INPUT_PULLUP);
+  mcp.pinMode(KEY12, INPUT_PULLUP);
   
   amy_config_t amy_config = amy_default_config();
   amy_config.features.startup_bleep = 0;
