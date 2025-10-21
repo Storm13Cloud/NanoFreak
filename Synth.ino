@@ -12,6 +12,10 @@ float lastCutoff = -1.0f;
 float resonance = 5.0f;  // starting resonance
 float targetResonance = 5.0f;
 
+const int keyPins[] = {KEY1, KEY2, KEY3, KEY4, KEY5, KEY6, KEY7, KEY7, KEY8, KEY9, KEY10, KEY11, KEY12};
+const int numKeys = 12;
+bool keyState[numKeys];
+bool lastKeyState[numKeys];
 
 int midiNote = 50;
 int currentNote = 0;
@@ -57,19 +61,23 @@ void setup() {
     Serial.println("Error.");
     while (1);
   }
-
-  mcp.pinMode(KEY1, INPUT_PULLUP);
-  mcp.pinMode(KEY2, INPUT_PULLUP);
-  mcp.pinMode(KEY3, INPUT_PULLUP);
-  mcp.pinMode(KEY4, INPUT_PULLUP);
-  mcp.pinMode(KEY5, INPUT_PULLUP);
-  mcp.pinMode(KEY6, INPUT_PULLUP);
-  mcp.pinMode(KEY7, INPUT_PULLUP);
-  mcp.pinMode(KEY8, INPUT_PULLUP);
-  mcp.pinMode(KEY9, INPUT_PULLUP);
-  mcp.pinMode(KEY10, INPUT_PULLUP);
-  mcp.pinMode(KEY11, INPUT_PULLUP);
-  mcp.pinMode(KEY12, INPUT_PULLUP);
+  for (int i = 0; i < numKeys; i++) {
+    mcp.pinMode(keyPins[i], INPUT_PULLUP);
+    keyState[i] = mcp.digitalRead(keyPins[i]);
+    lastKeyState[i] = keyState[i];
+  }
+//  mcp.pinMode(KEY1, INPUT_PULLUP);
+//  mcp.pinMode(KEY2, INPUT_PULLUP);
+//  mcp.pinMode(KEY3, INPUT_PULLUP);
+//  mcp.pinMode(KEY4, INPUT_PULLUP);
+//  mcp.pinMode(KEY5, INPUT_PULLUP);
+//  mcp.pinMode(KEY6, INPUT_PULLUP);
+//  mcp.pinMode(KEY7, INPUT_PULLUP);
+//  mcp.pinMode(KEY8, INPUT_PULLUP);
+//  mcp.pinMode(KEY9, INPUT_PULLUP);
+//  mcp.pinMode(KEY10, INPUT_PULLUP);
+//  mcp.pinMode(KEY11, INPUT_PULLUP);
+//  mcp.pinMode(KEY12, INPUT_PULLUP);
   
   amy_config_t amy_config = amy_default_config();
   amy_config.features.startup_bleep = 0;
@@ -90,35 +98,56 @@ static bool led_state = 0;
 
 void loop() {
   // Your loop() must contain this call to amy:
-  int p1CurrentState = mcp.digitalRead(KEY1);
-  if (p1CurrentState == HIGH && p1LastState == LOW) {
-    currentNote = midiNote;
-    test();
-    Serial.println("p1 pressed");
+  for (int i = 0; i < numKeys; i++) {
+    keyState[i] = mcp.digitalRead(keyPins[i]);
+    if (keyState[i] != lastKeyState[i]) {
+      delay(10);
+      keyState[i] = mcp.digitalRead(keyPins[i]);
+      if (keyState[i] != lastKeyState[i]) {
+        lastKeyState[i] = keyState[i];
+        if (keyState[i] == LOW) {
+          Serial.print("Key ");
+          Serial.print(i);
+          Serial.print(" pressed");
+        }
+        else {
+          Serial.print("Key ");
+          Serial.print(i);
+          Serial.print(" released");
+        }
+      }
+    }
   }
-  if (p1CurrentState == LOW && p1LastState == HIGH) {
-    testOff();
-    Serial.println("p1 released");
-  }
-  int p2CurrentState = mcp.digitalRead(p2);
   
-  if (p2CurrentState == HIGH && p2LastState == LOW) {
-    currentNote = midiNote+1;
-    test();
-    Serial.println("p2 pressed");
-  }
-  if (p2CurrentState == LOW && p2LastState == HIGH) {
-    testOff();
-    Serial.println("p2 released");
-  }
-
-  if (mcp.digitalRead(p12)) {
-    Serial.println("Button p12 Pressed!");
-    delay(250);
-  }
-  p1LastState = p1CurrentState;
-  p2LastState = p2CurrentState;
-  delay(50);
+//  int p1CurrentState = mcp.digitalRead(KEY1);
+//  if (p1CurrentState == HIGH && p1LastState == LOW) {
+//    currentNote = midiNote;
+//    test();
+//    Serial.println("p1 pressed");
+//  }
+//  if (p1CurrentState == LOW && p1LastState == HIGH) {
+//    testOff();
+//    Serial.println("p1 released");
+//  }
+//  int p2CurrentState = mcp.digitalRead(KEY2);
+//  
+//  if (p2CurrentState == HIGH && p2LastState == LOW) {
+//    currentNote = midiNote+1;
+//    test();
+//    Serial.println("p2 pressed");
+//  }
+//  if (p2CurrentState == LOW && p2LastState == HIGH) {
+//    testOff();
+//    Serial.println("p2 released");
+//  }
+//
+//  if (mcp.digitalRead(KEY12)) {
+//    Serial.println("Button p12 Pressed!");
+//    delay(250);
+//  }
+//  p1LastState = p1CurrentState;
+//  p2LastState = p2CurrentState;
+//  delay(50);
   amy_update();
   potValue = analogRead(potPin);
   cutoff = 100.0f + (potValue / 4095.0f) * (5000.0f - 100.0f);
