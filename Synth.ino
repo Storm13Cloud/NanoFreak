@@ -54,7 +54,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println("AMY_Synth");
   if (!mcp.begin_I2C(0x27)) {
-  //if (!mcp.begin_SPI(CS_PIN)) {
     Serial.println("Error.");
     while (1);
   }
@@ -91,7 +90,7 @@ static bool led_state = 0;
 
 void loop() {
   // Your loop() must contain this call to amy:
-  int p1CurrentState = mcp.digitalRead(p1);
+  int p1CurrentState = mcp.digitalRead(KEY1);
   if (p1CurrentState == HIGH && p1LastState == LOW) {
     currentNote = midiNote;
     test();
