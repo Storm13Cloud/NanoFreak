@@ -12,7 +12,7 @@ float lastCutoff = -1.0f;
 float resonance = 5.0f;  // starting resonance
 float targetResonance = 5.0f;
 
-const int keyPins[] = {KEY1, KEY2, KEY3, KEY4, KEY5, KEY6, KEY7, KEY7, KEY8, KEY9, KEY10, KEY11, KEY12};
+const int keyPins[] = {KEY1, KEY2, KEY3, KEY4, KEY5, KEY6, KEY7, KEY8, KEY9, KEY10, KEY11, KEY12};
 const int numKeys = 12;
 bool keyState[numKeys];
 bool lastKeyState[numKeys];
@@ -20,8 +20,6 @@ bool lastKeyState[numKeys];
 int midiNote = 50;
 int currentNote = 0;
 
-int p1LastState = LOW;
-int p2LastState = LOW;
 
 void test() {
   amy_event e = amy_default_event();
@@ -42,6 +40,24 @@ void test() {
   e.osc =0;
   e.velocity = 1;
   e.midi_note = currentNote;
+  amy_add_event(&e);
+}
+
+void playNote(int i) {
+  int baseNote = 50;
+  amy_event e = amy_default_event();
+  e.synth = 1;
+  e.midi_note = baseNote + i;
+  e.velocity = 1;
+  amy_add_event(&e);
+}
+
+void noteOff(int i) {
+  int baseNote = 50;
+  amy_event e = amy_default_event();
+  e.synth = 1;
+  e.midi_note = baseNote + i;
+  e.velocity = 0;
   amy_add_event(&e);
 }
 
@@ -66,18 +82,6 @@ void setup() {
     keyState[i] = mcp.digitalRead(keyPins[i]);
     lastKeyState[i] = keyState[i];
   }
-//  mcp.pinMode(KEY1, INPUT_PULLUP);
-//  mcp.pinMode(KEY2, INPUT_PULLUP);
-//  mcp.pinMode(KEY3, INPUT_PULLUP);
-//  mcp.pinMode(KEY4, INPUT_PULLUP);
-//  mcp.pinMode(KEY5, INPUT_PULLUP);
-//  mcp.pinMode(KEY6, INPUT_PULLUP);
-//  mcp.pinMode(KEY7, INPUT_PULLUP);
-//  mcp.pinMode(KEY8, INPUT_PULLUP);
-//  mcp.pinMode(KEY9, INPUT_PULLUP);
-//  mcp.pinMode(KEY10, INPUT_PULLUP);
-//  mcp.pinMode(KEY11, INPUT_PULLUP);
-//  mcp.pinMode(KEY12, INPUT_PULLUP);
   
   amy_config_t amy_config = amy_default_config();
   amy_config.features.startup_bleep = 0;
@@ -90,6 +94,11 @@ void setup() {
   amy_config.i2s_dout = 10;
   amy_start(amy_config);
   amy_live_start();
+  amy_event e = amy_default_event();
+  e.synth = 1;
+  e.num_voices = 6;
+  e.patch_number = 1;
+  amy_add_event(&e);
   //test();
 }
 static long last_millis = 0;
@@ -106,11 +115,13 @@ void loop() {
       if (keyState[i] != lastKeyState[i]) {
         lastKeyState[i] = keyState[i];
         if (keyState[i] == LOW) {
+          playNote(i);
           Serial.print("Key ");
           Serial.print(i);
           Serial.print(" pressed");
         }
         else {
+          noteOff(i);
           Serial.print("Key ");
           Serial.print(i);
           Serial.print(" released");
@@ -119,35 +130,6 @@ void loop() {
     }
   }
   
-//  int p1CurrentState = mcp.digitalRead(KEY1);
-//  if (p1CurrentState == HIGH && p1LastState == LOW) {
-//    currentNote = midiNote;
-//    test();
-//    Serial.println("p1 pressed");
-//  }
-//  if (p1CurrentState == LOW && p1LastState == HIGH) {
-//    testOff();
-//    Serial.println("p1 released");
-//  }
-//  int p2CurrentState = mcp.digitalRead(KEY2);
-//  
-//  if (p2CurrentState == HIGH && p2LastState == LOW) {
-//    currentNote = midiNote+1;
-//    test();
-//    Serial.println("p2 pressed");
-//  }
-//  if (p2CurrentState == LOW && p2LastState == HIGH) {
-//    testOff();
-//    Serial.println("p2 released");
-//  }
-//
-//  if (mcp.digitalRead(KEY12)) {
-//    Serial.println("Button p12 Pressed!");
-//    delay(250);
-//  }
-//  p1LastState = p1CurrentState;
-//  p2LastState = p2CurrentState;
-//  delay(50);
   amy_update();
   potValue = analogRead(potPin);
   cutoff = 100.0f + (potValue / 4095.0f) * (5000.0f - 100.0f);
@@ -157,7 +139,7 @@ void loop() {
     lastCutoff = cutoff;
 
     amy_event e = amy_default_event();
-    e.osc = 0;             // target same osc
+    e.synth = 1;             // target same osc
     e.filter_freq_coefs[0] = cutoff;
     e.filter_type = 1;     // maintain filter type
     if (cutoff < 150.0f) {
