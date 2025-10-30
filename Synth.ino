@@ -22,9 +22,16 @@ float lastCutoff = -1.0f;
 float resonance = 5.0f;  // starting resonance
 float targetResonance = 5.0f;
 
-const int upButton = 2;
-const int selectButton = 38;
-const int downButton = 37;
+const int pinA = 36;   // CLK
+const int pinB = 39;   // DT
+const int pinSW = 41;  // Button (optional)
+
+volatile int encoderPos = 0;
+volatile int lastEncoded = 0;
+
+const int octUp = 2;
+const int filterType = 38;
+const int octDown = 37;
 
 const int keyPins[] = {KEY1, KEY2, KEY3, KEY4, KEY5, KEY6, KEY7, KEY8, KEY9, KEY10, KEY11, KEY12};
 const int numKeys = 12;
@@ -69,6 +76,27 @@ int numMenus = sizeof(menus) / sizeof(Menu);
   // https://github.com/shorepine/amy/blob/main/docs/synth.md#ctrlcoefficients
 
 
+long readEncoder() {
+  static int lastA = HIGH;
+  static int lastB = HIGH;
+  static long pos = 0;
+
+  int a = digitalRead(pinA);
+  int b = digitalRead(pinB);
+
+  if (a != lastA) {
+    if (a == LOW) {
+      // Direction detection
+      if (b == HIGH) pos++;
+      else pos--;
+    }
+  }
+
+  lastA = a;
+  lastB = b;
+  return pos;
+}
+
 void playNote(int i) {
   int baseNote = 50;
   amy_event e = amy_default_event();
@@ -87,50 +115,39 @@ void noteOff(int i) {
   amy_add_event(&e);
 }
 
-void handleButtons() {
-  if (millis() - lastButtonPress < debounceDelay) return;
+void handleEncoderMenu() {
+  static int lastPos = 0;
+  static unsigned long lastPress = 0;
+  const unsigned long debounce = 250;
 
-  // ----- UP BUTTON -----
-  if (digitalRead(upButton) == LOW) {
-    lastButtonPress = millis();
+  // --- Handle rotation ---
+  long pos = readEncoder();
+  int delta = pos - lastPos;
+  if (delta != 0) {
+    lastPos = pos;
 
     if (editMode && currentMenu == 2 && currentSelection == 0) {
-      // In edit mode: change patch number
-      patchNumber++;
+      // In edit mode: adjust patch number
+      patchNumber += delta;
+      if (patchNumber < 1) patchNumber = 1;
       if (patchNumber > 99) patchNumber = 99;
     } else {
-      // Navigation mode: move cursor up
-      currentSelection--;
+      // Navigation mode: move cursor up/down
+      currentSelection += (delta > 0) ? 1 : -1;
+      if (currentSelection >= menus[currentMenu].numItems) currentSelection = 0;
       if (currentSelection < 0) currentSelection = menus[currentMenu].numItems - 1;
     }
 
     menuNeedsRedraw = true;
   }
 
-  // ----- DOWN BUTTON -----
-  if (digitalRead(downButton) == LOW) {
-    lastButtonPress = millis();
+  // --- Handle button press (encoder switch) ---
+  if (digitalRead(pinSW) == LOW && (millis() - lastPress > debounce)) {
+    lastPress = millis();
 
-    if (editMode && currentMenu == 2 && currentSelection == 0) {
-      // In edit mode: change patch number
-      patchNumber--;
-      if (patchNumber < 1) patchNumber = 1;
-    } else {
-      // Navigation mode: move cursor down
-      currentSelection++;
-      if (currentSelection >= menus[currentMenu].numItems) currentSelection = 0;
-    }
-
-    menuNeedsRedraw = true;
-  }
-
-  // ----- SELECT BUTTON -----
-  if (digitalRead(selectButton) == LOW) {
-    lastButtonPress = millis();
-
-    // If we're on the Patch menu's "Patch Number" entry, toggle edit mode
+    // Toggle edit mode if on editable item
     if (currentMenu == 2 && currentSelection == 0) {
-      editMode = !editMode;           // enter/exit editing
+      editMode = !editMode;
       menuNeedsRedraw = true;
       return;
     }
@@ -150,8 +167,7 @@ void handleButtons() {
       showMessage(choice);
     }
 
-    // exiting edit mode if we changed menu or pressed back
-    editMode = false;
+    editMode = false; // always exit edit mode after navigating
     menuNeedsRedraw = true;
   }
 }
@@ -215,11 +231,15 @@ void showMessage(const char* msg) {
 }
 
 void setup() {
-  pinMode(upButton, INPUT_PULLUP);
-  pinMode(selectButton, INPUT_PULLUP);
-  pinMode(downButton, INPUT_PULLUP);
+  pinMode(octUp, INPUT_PULLUP);
+  pinMode(filterType, INPUT_PULLUP);
+  pinMode(octDown, INPUT_PULLUP);
   Wire.begin(8, 9);
   Wire.setClock(100000);
+  pinMode(pinA, INPUT_PULLUP);
+  pinMode(pinB, INPUT_PULLUP);
+  pinMode(pinSW, INPUT_PULLUP);
+
   Serial.begin(115200);
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
@@ -270,7 +290,7 @@ static bool led_state = 0;
 
 void loop() {
   // Your loop() must contain this call to amy:
-  handleButtons();
+  handleEncoderMenu();
   if (menuNeedsRedraw) {
     drawMenu();
     menuNeedsRedraw = false;
@@ -320,9 +340,6 @@ void loop() {
     e.resonance = resonance;       // maintain resonance
     amy_add_event(&e);
 
-    //Serial.print("Filter cutoff: ");
-    //Serial.println(cutoff);
   }
 
- // small update interval
 }
