@@ -52,7 +52,7 @@ int patchNumber = 1;
 
 struct Menu {
   const char* title;
-  const char* items[10];
+  const char* items[13];
   int numItems;
   int parent; // index of parent menu (-1 if root)
 };
@@ -61,7 +61,14 @@ Menu menus[] = {
   {"Main Menu", {"Patch", "User Patch", "Settings"}, 3, -1},         // 0
   {"Settings", {"Brightness", "Volume", "Back"}, 3, 0},               // 1
   {"Patch", {"Patch Number", "Back"}, 2, 0},                                   // 2
-  {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "Pitch", "LFO", "Pan", "Filter Type", "Filter Cutoff", "Resonance"}, 9, 0},   // 3
+  {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "OSC 1 ENV 1", "OSC 1 ENV 2", "OSC 2 ENV 1", "OSC 2 ENV 2", "LFO", "Pitch", "Pan", "Filter Type", "Filter Cutoff", "Resonance"}, 11, 0},   // 3
+  {"OSC 1 ENV 1", {"A", "D", "S", "R"}, 4, 1},                      // 4
+  {"OSC 1 ENV 2", {"A", "D", "S", "R"}, 4, 1},                      // 5
+  {"OSC 2 ENV 1", {"A", "D", "S", "R"}, 4, 1},                      // 6
+  {"OSC 2 ENV 2", {"A", "D", "S", "R"}, 4, 1},                      // 7
+  {"LFO", {"Type", "Freq", "Control Param", "Param Intensity"}, 4, 1},                                  // 8
+  {"Filter Cutoff", {"Value", "Control Param", "Param Intensity"}, 3, 1, // 9
+  {"Resonance", {"Value", "Control Param", "Param Instensity"}, 3, 1,     // 10
 };
 
 bool editMode = false;
@@ -174,6 +181,9 @@ void handleEncoderMenu() {
       currentSelection = 0;
     } else if (strcmp(choice, "Back") == 0) {
       currentMenu = menus[currentMenu].parent;
+      currentSelection = 0;
+    } else if (strcmp(choice, "User Patch") == 0) {
+      currentMenu = 3;
       currentSelection = 0;
     } else {
       showMessage(choice);
