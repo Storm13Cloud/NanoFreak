@@ -26,8 +26,8 @@ const int pinA = 36;   // CLK
 const int pinB = 39;   // DT
 const int pinSW = 41;  // Button (optional)
 
-volatile int encoderPos = 0;
-volatile int lastEncoded = 0;
+static uint8_t prevNextCode = 0;
+static uint16_t store=0;
 
 const int octUp = 2;
 const int filterType = 38;
@@ -75,26 +75,25 @@ int numMenus = sizeof(menus) / sizeof(Menu);
   // strncpy(e.bp1, "0,6.0,1000,3.0,200,0", sizeof(e.bp1));
   // https://github.com/shorepine/amy/blob/main/docs/synth.md#ctrlcoefficients
 
+// A valid CW or CCW move returns 1, invalid returns 0.
+int8_t read_rotary() {
+  static int8_t rot_enc_table[] = {0, 1, 1, 0, 1, 0, 0, 1, 
+                                   1, 0, 0, 1, 0, 1, 1, 0};
 
-long readEncoder() {
-  static int lastA = HIGH;
-  static int lastB = HIGH;
-  static long pos = 0;
+  prevNextCode <<= 2;
+  if (digitalRead(pinB)) prevNextCode |= 0x02;
+  if (digitalRead(pinA)) prevNextCode |= 0x01;
+  prevNextCode &= 0x0f;
 
-  int a = digitalRead(pinA);
-  int b = digitalRead(pinB);
+  // If valid then store as 16 bit data.
+  if (rot_enc_table[prevNextCode]) {
+    store <<= 4;
+    store |= prevNextCode;
 
-  if (a != lastA) {
-    if (a == LOW) {
-      // Direction detection
-      if (b == HIGH) pos++;
-      else pos--;
-    }
+    if ((store & 0xff) == 0x2b) return -1;
+    if ((store & 0xff) == 0x17) return 1;
   }
-
-  lastA = a;
-  lastB = b;
-  return pos;
+  return 0;
 }
 
 void playNote(int i) {
@@ -120,40 +119,52 @@ void handleEncoderMenu() {
   static unsigned long lastPress = 0;
   const unsigned long debounce = 250;
 
-  // --- Handle rotation ---
-  long pos = readEncoder();
-  int delta = pos - lastPos;
-  if (delta != 0) {
-    lastPos = pos;
+  static int8_t c, val;
 
+  if (val = read_rotary()) {
+    c += val;
+    Serial.print(c);
+    Serial.print(" ");
+
+    if (prevNextCode == 0x0b) {
+      
+      Serial.print("eleven ");
+      Serial.println(store, HEX);
+    }
+
+    if (prevNextCode == 0x07) {
+      Serial.print("seven ");
+      Serial.println(store, HEX);
+    }
+  }
+  
+  // --- Handle rotation ---
+  val = read_rotary();
+  if (val != 0) {
     if (editMode && currentMenu == 2 && currentSelection == 0) {
       // In edit mode: adjust patch number
-      patchNumber += delta;
+      patchNumber += val;
       if (patchNumber < 1) patchNumber = 1;
       if (patchNumber > 99) patchNumber = 99;
     } else {
       // Navigation mode: move cursor up/down
-      currentSelection += (delta > 0) ? 1 : -1;
+      currentSelection += (val > 0) ? 1 : -1;
       if (currentSelection >= menus[currentMenu].numItems) currentSelection = 0;
       if (currentSelection < 0) currentSelection = menus[currentMenu].numItems - 1;
     }
-
     menuNeedsRedraw = true;
   }
 
   // --- Handle button press (encoder switch) ---
   if (digitalRead(pinSW) == LOW && (millis() - lastPress > debounce)) {
     lastPress = millis();
-
     // Toggle edit mode if on editable item
     if (currentMenu == 2 && currentSelection == 0) {
       editMode = !editMode;
       menuNeedsRedraw = true;
       return;
     }
-
     const char* choice = menus[currentMenu].items[currentSelection];
-
     if (strcmp(choice, "Settings") == 0) {
       currentMenu = 1;
       currentSelection = 0;
@@ -166,7 +177,6 @@ void handleEncoderMenu() {
     } else {
       showMessage(choice);
     }
-
     editMode = false; // always exit edit mode after navigating
     menuNeedsRedraw = true;
   }
@@ -245,16 +255,12 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
-
   // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
   display.clearDisplay();
   display.display();
   delay(2000); // Pause for 2 seconds
-
   // Clear the buffer
-  
-
   Serial.println("AMY_Synth");
   if (!mcp.begin_I2C(0x27)) {
     Serial.println("Error.");
