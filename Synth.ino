@@ -52,15 +52,16 @@ int patchNumber = 1;
 
 struct Menu {
   const char* title;
-  const char* items[5];
+  const char* items[10];
   int numItems;
   int parent; // index of parent menu (-1 if root)
 };
 
 Menu menus[] = {
-  {"Main Menu", {"Patch", "Option 2", "Settings"}, 3, -1},         // 0
+  {"Main Menu", {"Patch", "User Patch", "Settings"}, 3, -1},         // 0
   {"Settings", {"Brightness", "Volume", "Back"}, 3, 0},               // 1
   {"Patch", {"Patch Number", "Back"}, 2, 0},                                   // 2
+  {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "Pitch", "LFO", "Pan", "Filter Type", "Filter Cutoff", "Resonance"}, 9, 0},   // 3
 };
 
 bool editMode = false;
