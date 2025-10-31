@@ -22,6 +22,7 @@ float lastCutoff = -1.0f;
 float resonance = 5.0f;  // starting resonance
 float targetResonance = 5.0f;
 int osc1Type = 0;
+int osc2Type = 0;
 int numOscTypes = 8;
 const char* oscTypes[] = {"SINE", "PULSE", "SAW_DOWN", "SAW_UP", "TRIANGLE", "NOISE", "KS", "PCM"};
 
@@ -67,13 +68,13 @@ Menu menus[] = {
   {"Settings", {"Brightness", "Volume", "Back"}, 3, 0},               // 1
   {"Patch", {"Patch Number", "Back"}, 2, 0},                                   // 2
   {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "OSC 1 ENV 1", "OSC 1 ENV 2", "OSC 2 ENV 1", "OSC 2 ENV 2", "LFO", "Pitch", "Pan", "Filter Type", "Filter Cutoff", "Resonance", "Back"}, 14, 0},   // 3
-  {"OSC 1 ENV 1", {"A", "D", "S", "R", "Back"}, 5, 1},                      // 4
-  {"OSC 1 ENV 2", {"A", "D", "S", "R", "Back"}, 5, 1},                      // 5
-  {"OSC 2 ENV 1", {"A", "D", "S", "R", "Back"}, 5, 1},                      // 6
-  {"OSC 2 ENV 2", {"A", "D", "S", "R", "Back"}, 5, 1},                      // 7
-  {"LFO", {"Type", "Freq", "Control Param", "Param Intensity", "Back"}, 5, 1},                                  // 8
-  {"Filter Cutoff", {"Value", "Control Param", "Param Intensity", "Back"}, 4, 1}, // 9
-  {"Resonance", {"Value", "Control Param", "Param Instensity", "Back"}, 4, 1},     // 10
+  {"OSC 1 ENV 1", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 4
+  {"OSC 1 ENV 2", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 5
+  {"OSC 2 ENV 1", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 6
+  {"OSC 2 ENV 2", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 7
+  {"LFO", {"Type", "Freq", "Control Param", "Param Intensity", "Back"}, 5, 3},    // 8
+  {"Filter Cutoff", {"Value", "Control Param", "Param Intensity", "Back"}, 4, 3}, // 9
+  {"Resonance", {"Value", "Control Param", "Param Instensity", "Back"}, 4, 3},    // 10
 };
 
 bool editMode = false;
@@ -136,43 +137,47 @@ void handleEncoderMenu() {
   
   // --- Handle rotation ---
   if (val = read_rotary()) {
-  Serial.print(val);
+    Serial.print(val);
 
-  if (editMode && currentMenu == 2 && currentSelection == 0) {
-    // In edit mode: adjust patch number
-    patchNumber += val;
-    if (patchNumber < 1) patchNumber = 1;
-    if (patchNumber > 99) patchNumber = 99;
-  } else if (editMode && currentMenu == 3 && currentSelection == 0) {
-    patchNumber += val;
-    if (patchNumber < 1024) patchNumber = 1024;
-    if (patchNumber > 1100) patchNumber = 1100;
-  } else if (editMode && currentMenu == 3 && currentSelection == 1) {
-    osc1Type += val;
-    if (osc1Type < 0) osc1Type = numOscTypes - 1;
-    if (osc1Type >= numOscTypes) osc1Type = 0;
-  } else {
-    // Navigation mode: move cursor up/down
-    currentSelection += (val > 0) ? 1 : -1;
+    if (editMode && currentMenu == 2 && currentSelection == 0) {
+      // In edit mode: adjust patch number
+      patchNumber += val;
+      if (patchNumber < 1) patchNumber = 1;
+      if (patchNumber > 99) patchNumber = 99;
+    } else if (editMode && currentMenu == 3 && currentSelection == 0) {
+      patchNumber += val;
+      if (patchNumber < 1024) patchNumber = 1024;
+      if (patchNumber > 1100) patchNumber = 1100;
+    } else if (editMode && currentMenu == 3 && currentSelection == 1) {
+      osc1Type += val;
+      if (osc1Type < 0) osc1Type = numOscTypes - 1;
+      if (osc1Type >= numOscTypes) osc1Type = 0;
+    } else if (editMode && currentMenu == 3 && currentSelection == 2) {
+      osc2Type += val;
+      if (osc2Type < 0) osc2Type = numOscTypes - 1;
+      if (osc2Type >= numOscTypes) osc2Type = 0;
+    } else {
+      // Navigation mode: move cursor up/down
+      currentSelection += (val > 0) ? 1 : -1;
 
-    // Clamp selection
-    if (currentSelection < 0) currentSelection = 0;
-    if (currentSelection >= menus[currentMenu].numItems)
-      currentSelection = menus[currentMenu].numItems - 1;
+      // Clamp selection
+      if (currentSelection < 0) currentSelection = 0;
+      if (currentSelection >= menus[currentMenu].numItems)
+        currentSelection = menus[currentMenu].numItems - 1;
 
-    // Scroll logic with clamping
-    if (currentSelection < scrollOffset) {
-      scrollOffset = currentSelection;
-    } else if (currentSelection >= scrollOffset + visibleItems) {
-      scrollOffset = currentSelection - visibleItems + 1;
+      // Scroll logic with clamping
+      if (currentSelection < scrollOffset) {
+        scrollOffset = currentSelection;
+      } else if (currentSelection >= scrollOffset + visibleItems) {
+        scrollOffset = currentSelection - visibleItems + 1;
+      }
+
+      // Clamp scroll offset
+      if (scrollOffset < 0) scrollOffset = 0;
+      int maxScroll = menus[currentMenu].numItems - visibleItems;
+      if (maxScroll < 0) maxScroll = 0;
+      if (scrollOffset > maxScroll) scrollOffset = maxScroll;
     }
-
-    // Clamp scroll offset
-    if (scrollOffset < 0) scrollOffset = 0;
-    int maxScroll = menus[currentMenu].numItems - visibleItems;
-    if (maxScroll < 0) maxScroll = 0;
-    if (scrollOffset > maxScroll) scrollOffset = maxScroll;
-  }
 
   menuNeedsRedraw = true;
   }
@@ -196,6 +201,11 @@ void handleEncoderMenu() {
       menuNeedsRedraw = true;
       return;
     }
+    else if (currentMenu == 3 && currentSelection == 2) {
+      editMode = !editMode;
+      menuNeedsRedraw = true;
+      return;
+    }
     const char* choice = menus[currentMenu].items[currentSelection];
     if (strcmp(choice, "Settings") == 0) {
       currentMenu = 1;
@@ -207,6 +217,34 @@ void handleEncoderMenu() {
       scrollOffset = 0;
     } else if (strcmp(choice, "User Patch") == 0) {
       currentMenu = 3;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "OSC 1 ENV 1") == 0) {
+      currentMenu = 4;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "OSC 1 ENV 2") == 0) {
+      currentMenu = 5;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "OSC 2 ENV 1") == 0) {
+      currentMenu = 6;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "OSC 2 ENV 2") == 0) {
+      currentMenu = 7;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "LFO") == 0) {
+      currentMenu = 8;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "Filter Cutoff") == 0) {
+      currentMenu = 9;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "Resonance") == 0) {
+      currentMenu = 10;
       currentSelection = 0;
       scrollOffset = 0;
     } else if (strcmp(choice, "Back") == 0) {
@@ -241,7 +279,7 @@ void drawMenu() {
     display.setCursor(2, y);
     // --- Patch submenu dynamic patch number ---
     if (currentMenu == 2 && i == 0) {
-      if (editMode) {
+      if (editMode && i==0) {
         char buf[20];
         snprintf(buf, sizeof(buf), "Patch: [%02d]", patchNumber);
         display.println(buf);
@@ -249,8 +287,9 @@ void drawMenu() {
         display.print("Patch: ");
         display.println(patchNumber);
       }
+    // --- User Patch: Patch Number ---
     } else if (currentMenu == 3 && i == 0) {
-      if (editMode) {
+      if (editMode && i==0) {
         char buf[20];
         snprintf(buf, sizeof(buf), "Patch: [%02d]", patchNumber);
         display.println(buf);
@@ -260,13 +299,23 @@ void drawMenu() {
       }
     // --- User Patch: OSC 1 type ---
     } else if (currentMenu == 3 && i == 1) {
-      if (editMode) {
+      if (editMode && i==1) {
         display.print("OSC 1: [");
         display.print(oscTypes[osc1Type]);
         display.println("]");
       } else {
         display.print("OSC 1: ");
         display.println(oscTypes[osc1Type]);
+      }
+    // --- User Patch: OSC 2 type ---
+    } else if (currentMenu == 3 && i == 2) {
+      if (editMode && i==2) {
+        display.print("OSC 2: [");
+        display.print(oscTypes[osc2Type]);
+        display.println("]");
+      } else {
+        display.print("OSC 2: ");
+        display.println(oscTypes[osc2Type]);
       }
     // --- Default item rendering ---
     } else {
@@ -343,13 +392,11 @@ static const long millis_interval = 250;
 static bool led_state = 0;
 
 void loop() {
-  // Your loop() must contain this call to amy:
   handleEncoderMenu();
   if (menuNeedsRedraw) {
     drawMenu();
     menuNeedsRedraw = false;
   }
-  //display.display();
   for (int i = 0; i < numKeys; i++) {
     keyState[i] = mcp.digitalRead(keyPins[i]);
     if (keyState[i] != lastKeyState[i]) {
