@@ -19,8 +19,11 @@ int potPin = 1;   // GPIO 39
 int potValue = 0;  // Raw 0–4095
 float cutoff = 0.0f;
 float lastCutoff = -1.0f;
-float resonance = 5.0f;  // starting resonance
-float targetResonance = 5.0f;
+float resonance = 0.7f;  // starting resonance
+float pitchBend = 0.0f;
+float targetPitchBend = 0.0f;
+float targetCutoff = 0.0f;
+float smoothing = 0.1f; 
 int osc1Type = 0;
 int osc2Type = 0;
 int numOscTypes = 8;
@@ -29,6 +32,18 @@ const char* oscTypes[] = {"SINE", "PULSE", "SAW_DOWN", "SAW_UP", "TRIANGLE", "NO
 const int pinA = 36;   // CLK
 const int pinB = 39;   // DT
 const int pinSW = 41;  // Button (optional)
+
+const int stickX = 4;
+const int stickY = 5;
+float stickXValue = 0;
+float stickYValue = 0;
+float prevStickYValue = 0;
+float prevStickXValue = 0;
+
+long totalX = 0;
+float samplesX = 8;
+long totalY = 0;
+float samplesY = 8;
 
 static uint8_t prevNextCode = 0;
 static uint16_t store=0;
@@ -287,6 +302,11 @@ void drawMenu() {
         display.print("Patch: ");
         display.println(patchNumber);
       }
+      amy_event e = amy_default_event();
+      e.synth = 1;
+      e.num_voices = 6;
+      e.patch_number = patchNumber;
+      amy_add_event(&e);
     // --- User Patch: Patch Number ---
     } else if (currentMenu == 3 && i == 0) {
       if (editMode && i==0) {
@@ -387,6 +407,11 @@ void setup() {
   amy_add_event(&e);
   //test();
 }
+
+float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
 static long last_millis = 0;
 static const long millis_interval = 250;
 static bool led_state = 0;
@@ -409,38 +434,76 @@ void loop() {
           Serial.print("Key ");
           Serial.print(i);
           Serial.print(" pressed");
+          Serial.println("keystate");
+          Serial.print(keyState[i]);
         }
         else {
           noteOff(i);
           Serial.print("Key ");
           Serial.print(i);
           Serial.print(" released");
+          Serial.println("keystate");
+          Serial.print(keyState[i]);
         }
       }
     }
   }
-  //digitalRead()
   amy_update();
   potValue = analogRead(potPin);
-  cutoff = 100.0f + (potValue / 4095.0f) * (5000.0f - 100.0f);
-
-  // Only update if significant change
-  if (fabs(cutoff - lastCutoff) > 5.0f) {
-    lastCutoff = cutoff;
-
-    amy_event e = amy_default_event();
-    e.synth = 1;             // target same osc
-    e.filter_freq_coefs[0] = cutoff;
-    e.filter_type = 1;     // maintain filter type
-    if (cutoff < 150.0f) {
-     targetResonance = 0.5f;
-  } else {
-      targetResonance = 5.0f; // default resonance
+  // stickXValue = analogRead(stickX);
+  // stickYValue = analogRead(stickY);
+  // for (int i = 0; i < samplesX; i++) {
+  //   totalX += analogRead(stickX);
+  // }
+  // float stickXValue = totalX / (float)samplesX;
+  // stickYValue = (stickYValue * 0.1f) + (prevStickYValue * 0.9f);
+  // prevStickYValue = stickYValue;
+  // for (int i = 0; i < samplesY; i++) {
+  //   totalY += analogRead(stickY);
+  // }
+  // float stickYValue = totalY / (float)samplesY;
+  // stickXValue = (stickXValue * 0.1f) + (prevStickXValue * 0.9f);
+  // prevStickXValue = stickXValue;
+  // targetCutoff = fmap(stickXValue, 0.0f, 4095.0f, 180.0f, 8000.0f);
+  // cutoff += (targetCutoff - cutoff) * 0.1f;
+  // resonance = 0.7f + (potValue / 4095.0f) * (7.0f - 0.7f);
+  // targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
+  // pitchBend += (targetPitchBend - pitchBend) * smoothing;
+  long totalX = 0;
+  for (int i = 0; i < samplesX; i++) {
+    totalX += analogRead(stickX);
   }
-    resonance = lerp(resonance, targetResonance, 0.05f);
-    e.resonance = resonance;       // maintain resonance
-    amy_add_event(&e);
+  float newStickXValue = totalX / (float)samplesX;
 
+  // --- Read and average joystick Y ---
+  long totalY = 0;
+  for (int i = 0; i < samplesY; i++) {
+    totalY += analogRead(stickY);
   }
+  float newStickYValue = totalY / (float)samplesY;
 
+  // --- Exponential smoothing (low-pass filter) ---
+  stickXValue = (stickXValue * 0.9f) + (newStickXValue * 0.1f);
+  stickYValue = (stickYValue * 0.9f) + (newStickYValue * 0.1f);
+
+  // --- Map and process controls ---
+  float targetCutoff = fmap(stickXValue, 0.0f, 4095.0f, 180.0f, 8000.0f);
+  cutoff += (targetCutoff - cutoff) * 0.1f;
+
+  float resonance = 0.7f + (potValue / 4095.0f) * (7.0f - 0.7f);
+
+  float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
+  pitchBend += (targetPitchBend - pitchBend) * smoothing;
+
+  amy_event e = amy_default_event();
+  e.synth = 1;             // target same osc
+  e.filter_freq_coefs[0] = cutoff;
+  e.filter_type = 1; 
+  e.resonance = resonance; 
+  e.pitch_bend = pitchBend;
+  amy_add_event(&e);
+  Serial.println(pitchBend);
+  Serial.println(cutoff);
 }
+
+
