@@ -15,7 +15,7 @@ Adafruit_MCP23X17 mcp;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
-int potPin = 1;   // GPIO 39
+int potPin = 1;
 int potValue = 0;  // Raw 0–4095
 float cutoff = 0.0f;
 float lastCutoff = -1.0f;
@@ -67,13 +67,13 @@ const int debounceDelay = 200;
 // Menu state
 int currentMenu = 0;
 int currentSelection = 0;
-int patchNumber = 1;
+int patchNumber = 0;
 const int visibleItems = 5;  // how many items fit on screen
 int scrollOffset = 0;        // which item index is at the top
 
 struct Menu {
   const char* title;
-  const char* items[14];
+  const char* items[15];
   int numItems;
   int parent; // index of parent menu (-1 if root)
 };
@@ -82,7 +82,7 @@ Menu menus[] = {
   {"Main Menu", {"Patch", "User Patch", "Settings"}, 3, -1},         // 0
   {"Settings", {"Brightness", "Volume", "Back"}, 3, 0},               // 1
   {"Patch", {"Patch Number", "Back"}, 2, 0},                                   // 2
-  {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "OSC 1 ENV 1", "OSC 1 ENV 2", "OSC 2 ENV 1", "OSC 2 ENV 2", "LFO", "Pitch", "Pan", "Filter Type", "Filter Cutoff", "Resonance", "Back"}, 14, 0},   // 3
+  {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "OSC 1 ENV 1", "OSC 1 ENV 2", "OSC 2 ENV 1", "OSC 2 ENV 2", "LFO", "Pitch", "Pan", "Filter Type", "Filter Cutoff", "Resonance", "Save", "Back"}, 15, 0},   // 3
   {"OSC 1 ENV 1", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 4
   {"OSC 1 ENV 2", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 5
   {"OSC 2 ENV 1", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 6
@@ -145,8 +145,8 @@ void noteOff(int i) {
 
 void handleEncoderMenu() {
   static int lastPos = 0;
-  static unsigned long lastPress = 0;
-  const unsigned long debounce = 250;
+  static unsigned int lastPress = 0;
+  const unsigned int debounce = 250;
 
   static int8_t c, val;
   
@@ -157,12 +157,12 @@ void handleEncoderMenu() {
     if (editMode && currentMenu == 2 && currentSelection == 0) {
       // In edit mode: adjust patch number
       patchNumber += val;
-      if (patchNumber < 1) patchNumber = 1;
-      if (patchNumber > 99) patchNumber = 99;
+      if (patchNumber < 0) patchNumber = 0;
+      if (patchNumber > 256) patchNumber = 256;
     } else if (editMode && currentMenu == 3 && currentSelection == 0) {
       patchNumber += val;
       if (patchNumber < 1024) patchNumber = 1024;
-      if (patchNumber > 1100) patchNumber = 1100;
+      if (patchNumber > 1055) patchNumber = 1055;
     } else if (editMode && currentMenu == 3 && currentSelection == 1) {
       osc1Type += val;
       if (osc1Type < 0) osc1Type = numOscTypes - 1;
@@ -262,6 +262,8 @@ void handleEncoderMenu() {
       currentMenu = 10;
       currentSelection = 0;
       scrollOffset = 0;
+    } else if (strcmp(choice, "Save") == 0) {
+      // Save user patch
     } else if (strcmp(choice, "Back") == 0) {
       currentMenu = menus[currentMenu].parent;
       currentSelection = 0;
@@ -317,6 +319,11 @@ void drawMenu() {
         display.print("Patch: ");
         display.println(patchNumber);
       }
+      amy_event e = amy_default_event();
+      e.synth = 1;
+      e.num_voices = 6;
+      e.patch_number = patchNumber;
+      amy_add_event(&e);
     // --- User Patch: OSC 1 type ---
     } else if (currentMenu == 3 && i == 1) {
       if (editMode && i==1) {
@@ -327,6 +334,13 @@ void drawMenu() {
         display.print("OSC 1: ");
         display.println(oscTypes[osc1Type]);
       }
+      amy_event e = amy_default_event();
+      e.synth = 1;
+      e.patch_number = patchNumber;
+      e.num_voices = 6;
+      e.osc = 1;
+      e.wave = osc1Type;
+      amy_add_event(&e);
     // --- User Patch: OSC 2 type ---
     } else if (currentMenu == 3 && i == 2) {
       if (editMode && i==2) {
@@ -337,6 +351,13 @@ void drawMenu() {
         display.print("OSC 2: ");
         display.println(oscTypes[osc2Type]);
       }
+      amy_event e = amy_default_event();
+      e.synth = 1;
+      e.patch_number = patchNumber;
+      e.num_voices = 6;
+      e.osc = 2;
+      e.wave = osc2Type;
+      amy_add_event(&e);
     // --- Default item rendering ---
     } else {
       display.println(menus[currentMenu].items[i]);
@@ -372,12 +393,9 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
-  // Show initial display buffer contents on the screen --
-  // the library initializes this with an Adafruit splash screen.
   display.clearDisplay();
   display.display();
-  delay(2000); // Pause for 2 seconds
-  // Clear the buffer
+  delay(2000);
   Serial.println("AMY_Synth");
   if (!mcp.begin_I2C(0x27)) {
     Serial.println("Error.");
@@ -450,25 +468,6 @@ void loop() {
   }
   amy_update();
   potValue = analogRead(potPin);
-  // stickXValue = analogRead(stickX);
-  // stickYValue = analogRead(stickY);
-  // for (int i = 0; i < samplesX; i++) {
-  //   totalX += analogRead(stickX);
-  // }
-  // float stickXValue = totalX / (float)samplesX;
-  // stickYValue = (stickYValue * 0.1f) + (prevStickYValue * 0.9f);
-  // prevStickYValue = stickYValue;
-  // for (int i = 0; i < samplesY; i++) {
-  //   totalY += analogRead(stickY);
-  // }
-  // float stickYValue = totalY / (float)samplesY;
-  // stickXValue = (stickXValue * 0.1f) + (prevStickXValue * 0.9f);
-  // prevStickXValue = stickXValue;
-  // targetCutoff = fmap(stickXValue, 0.0f, 4095.0f, 180.0f, 8000.0f);
-  // cutoff += (targetCutoff - cutoff) * 0.1f;
-  // resonance = 0.7f + (potValue / 4095.0f) * (7.0f - 0.7f);
-  // targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
-  // pitchBend += (targetPitchBend - pitchBend) * smoothing;
   long totalX = 0;
   for (int i = 0; i < samplesX; i++) {
     totalX += analogRead(stickX);
@@ -505,5 +504,4 @@ void loop() {
   Serial.println(pitchBend);
   Serial.println(cutoff);
 }
-
 
