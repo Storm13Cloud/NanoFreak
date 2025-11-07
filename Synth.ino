@@ -41,9 +41,9 @@ float prevStickYValue = 0;
 float prevStickXValue = 0;
 
 long totalX = 0;
-float samplesX = 8;
+float samplesX = 4;
 long totalY = 0;
-float samplesY = 8;
+float samplesY = 4;
 
 static uint8_t prevNextCode = 0;
 static uint16_t store=0;
@@ -287,6 +287,10 @@ void drawMenu() {
   for (int i = scrollOffset; i < menus[currentMenu].numItems && i < scrollOffset + visibleItems; i++) {
     bool selected = (i == currentSelection);
     int y = 12 + (i - scrollOffset) * 10;
+
+    Serial.println("");
+    Serial.print("i is: ");
+    Serial.print(i);
     if (selected) {
       display.fillRect(0, y, SCREEN_WIDTH, 10, SSD1306_WHITE);
       display.setTextColor(SSD1306_BLACK);
@@ -397,7 +401,7 @@ void setup() {
   Serial.begin(115200);
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
+    for(;;); // Loop forever
   }
   display.clearDisplay();
   display.display();
@@ -427,9 +431,8 @@ void setup() {
   amy_event e = amy_default_event();
   e.synth = 1;
   e.num_voices = 6;
-  e.patch_number = 1;
+  e.patch_number = 0;
   amy_add_event(&e);
-  //test();
 }
 
 float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
@@ -474,6 +477,8 @@ void loop() {
   }
   amy_update();
   potValue = analogRead(potPin);
+
+  // --- Read and average joystick X ---
   long totalX = 0;
   for (int i = 0; i < samplesX; i++) {
     totalX += analogRead(stickX);
@@ -488,8 +493,8 @@ void loop() {
   float newStickYValue = totalY / (float)samplesY;
 
   // --- Exponential smoothing (low-pass filter) ---
-  stickXValue = (stickXValue * 0.9f) + (newStickXValue * 0.1f);
-  stickYValue = (stickYValue * 0.9f) + (newStickYValue * 0.1f);
+  stickXValue = (stickXValue * 0.85f) + (newStickXValue * 0.15f);
+  stickYValue = (stickYValue * 0.85f) + (newStickYValue * 0.15f);
 
   // --- Map and process controls ---
   float targetCutoff = fmap(stickXValue, 0.0f, 4095.0f, 180.0f, 8000.0f);
