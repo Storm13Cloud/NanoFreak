@@ -336,6 +336,9 @@ void drawMenu() {
       }
       amy_event e = amy_default_event();
       e.synth = 1;
+      e.reset_osc = 1;
+      amy_add_event(&e);
+      e.synth = 1;
       e.patch_number = patchNumber;
       e.num_voices = 6;
       e.osc = 1;
@@ -352,6 +355,9 @@ void drawMenu() {
         display.println(oscTypes[osc2Type]);
       }
       amy_event e = amy_default_event();
+      e.synth = 1;
+      e.reset_osc = 2;
+      amy_add_event(&e);
       e.synth = 1;
       e.patch_number = patchNumber;
       e.num_voices = 6;
@@ -504,4 +510,3 @@ void loop() {
   Serial.println(pitchBend);
   Serial.println(cutoff);
 }
-
