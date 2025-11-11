@@ -26,8 +26,12 @@ float targetCutoff = 0.0f;
 float smoothing = 0.1f; 
 int osc1Type = 0;
 int osc2Type = 0;
-int numOscTypes = 8;
-const char* oscTypes[] = {"SINE", "PULSE", "SAW_DOWN", "SAW_UP", "TRIANGLE", "NOISE", "KS", "PCM"};
+int osc3Type = 0;
+int osc4Type = 0;
+int osc5Type = 0;
+int osc6Type = 0;
+int numOscTypes = 9;
+const char* oscTypes[] = {"OFF", "SINE", "PULSE", "SAW_DOWN", "SAW_UP", "TRIANGLE", "NOISE", "KS", "PCM"};
 
 const int pinA = 36;   // CLK
 const int pinB = 39;   // DT
@@ -82,16 +86,31 @@ Menu menus[] = {
   {"Main Menu", {"Patch", "User Patch", "Settings"}, 3, -1},         // 0
   {"Settings", {"Brightness", "Volume", "Back"}, 3, 0},               // 1
   {"Patch", {"Patch Number", "Back"}, 2, 0},                                   // 2
-  {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "OSC 1 ENV 1", "OSC 1 ENV 2", "OSC 2 ENV 1", "OSC 2 ENV 2", "LFO", "Pitch", "Pan", "Filter Type", "Filter Cutoff", "Resonance", "Save", "Back"}, 15, 0},   // 3
-  {"OSC 1 ENV 1", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 4
-  {"OSC 1 ENV 2", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 5
-  {"OSC 2 ENV 1", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 6
-  {"OSC 2 ENV 2", {"A", "D", "S", "R", "Back"}, 5, 3},                      // 7
-  {"LFO", {"Type", "Freq", "Control Param", "Param Intensity", "Back"}, 5, 3},    // 8
-  {"Filter Cutoff", {"Value", "Control Param", "Param Intensity", "Back"}, 4, 3}, // 9
-  {"Resonance", {"Value", "Control Param", "Param Instensity", "Back"}, 4, 3},    // 10
+  {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "OSC 3", "OSC 4", "OSC 5", "OSC 6", "LFO", "Pitch", "Pan", "Filter Type", "Filter Cutoff", "Resonance", "Save", "Back"}, 15, 0},   // 3
+  {"OSC 1", {"Wave", "ENV 1", "ENV 2", "Back"}, 4, 3},             // 4
+  {"OSC 2", {"Wave", "ENV 1", "ENV 2", "OSC 1 Chain", "Param", "Back"}, 6, 3},             // 5
+  {"OSC 3", {"Wave", "ENV 1", "ENV 2", "OSC 1 Chain", "Param", "Back"}, 6, 3},             // 6
+  {"OSC 4", {"Wave", "ENV 1", "ENV 2", "OSC 1 Chain", "Param", "Back"}, 6, 3},             // 7
+  {"OSC 5", {"Wave", "ENV 1", "ENV 2", "OSC 1 Chain", "Param", "Back"}, 6, 3},             // 8
+  {"OSC 6", {"Wave", "ENV 1", "ENV 2", "OSC 1 Chain", "Param", "Back"}, 6, 3},             // 9
+  {"OSC 1 ENV 1", {"A", "D", "S", "R", "Param", "Back"}, 6, 4},             // 10
+  {"OSC 1 ENV 2", {"A", "D", "S", "R", "Param", "Back"}, 6, 4},             // 11
+  {"OSC 2 ENV 1", {"A", "D", "S", "R", "Param", "Back"}, 6, 5},             // 12
+  {"OSC 2 ENV 2", {"A", "D", "S", "R", "Param", "Back"}, 6, 5},             // 13
+  {"OSC 3 ENV 1", {"A", "D", "S", "R", "Param", "Back"}, 6, 6},             // 14
+  {"OSC 3 ENV 2", {"A", "D", "S", "R", "Param", "Back"}, 6, 6},             // 15
+  {"OSC 4 ENV 1", {"A", "D", "S", "R", "Param", "Back"}, 6, 7},             // 16
+  {"OSC 4 ENV 2", {"A", "D", "S", "R", "Param", "Back"}, 6, 7},             // 17
+  {"OSC 5 ENV 1", {"A", "D", "S", "R", "Param", "Back"}, 6, 8},             // 18
+  {"OSC 5 ENV 2", {"A", "D", "S", "R", "Param", "Back"}, 6, 8},             // 19
+  {"OSC 6 ENV 1", {"A", "D", "S", "R", "Param", "Back"}, 6, 9},             // 20
+  {"OSC 6 ENV 2", {"A", "D", "S", "R", "Param", "Back"}, 6, 9},             // 21
+  {"LFO", {"Type", "Freq", "Control Param", "Param Intensity", "Back"}, 5, 3},    // 22
+  {"Filter Cutoff", {"Value", "Control Param", "Param Intensity", "Back"}, 4, 3}, // 23
+  {"Resonance", {"Value", "Control Param", "Param Instensity", "Back"}, 4, 3},    // 24
 };
 
+bool osc0Chains[6] = {false, false, false, false, false, false};
 bool editMode = false;
 bool menuNeedsRedraw = true;
 int numMenus = sizeof(menus) / sizeof(Menu);
@@ -143,6 +162,31 @@ void noteOff(int i) {
   amy_add_event(&e);
 }
 
+void updateUserPatch() {
+  amy_event e = amy_default_event();
+  e.patch_number = patchNumber;
+  e.reset_osc = RESET_PATCH;
+  amy_add_event(&e);
+  e.patch_number = patchNumber;
+  e.osc = 0;
+  e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
+  for (int i = 1; i < 6; i++) {
+    if (osc0Chains[i] && i != 0) {
+      e.osc = 0;
+      e.chained_osc = i;
+      amy_add_event(&e);
+    }
+  }
+  amy_add_event(&e);
+  e.patch_number = patchNumber;
+  e.osc = 1;
+  e.wave = (osc2Type == 0) ? 16 : (osc2Type - 1);
+  e.num_voices = 6;
+  amy_add_event(&e);
+  e.synth = 1;
+  amy_add_event(&e);
+}
+
 void handleEncoderMenu() {
   static int lastPos = 0;
   static unsigned int lastPress = 0;
@@ -153,7 +197,6 @@ void handleEncoderMenu() {
   // --- Handle rotation ---
   if (val = read_rotary()) {
     Serial.print(val);
-
     if (editMode && currentMenu == 2 && currentSelection == 0) {
       // In edit mode: adjust patch number
       patchNumber += val;
@@ -163,14 +206,40 @@ void handleEncoderMenu() {
       patchNumber += val;
       if (patchNumber < 1024) patchNumber = 1024;
       if (patchNumber > 1055) patchNumber = 1055;
-    } else if (editMode && currentMenu == 3 && currentSelection == 1) {
+    } else if (editMode && currentMenu == 4 && currentSelection == 0) {
       osc1Type += val;
       if (osc1Type < 0) osc1Type = numOscTypes - 1;
       if (osc1Type >= numOscTypes) osc1Type = 0;
-    } else if (editMode && currentMenu == 3 && currentSelection == 2) {
+    } else if (editMode && currentMenu == 5 && currentSelection == 0) {
       osc2Type += val;
       if (osc2Type < 0) osc2Type = numOscTypes - 1;
       if (osc2Type >= numOscTypes) osc2Type = 0;
+    } else if (editMode && currentMenu == 6 && currentSelection == 0) {
+      osc3Type += val;
+      if (osc3Type < 0) osc3Type = numOscTypes - 1;
+      if (osc3Type >= numOscTypes) osc3Type = 0;
+    } else if (editMode && currentMenu == 7 && currentSelection == 0) {
+      osc4Type += val;
+      if (osc4Type < 0) osc4Type = numOscTypes - 1;
+      if (osc4Type >= numOscTypes) osc4Type = 0;
+    } else if (editMode && currentMenu == 8 && currentSelection == 0) {
+      osc5Type += val;
+      if (osc5Type < 0) osc5Type = numOscTypes - 1;
+      if (osc5Type >= numOscTypes) osc5Type = 0;
+    } else if (editMode && currentMenu == 9 && currentSelection == 0) {
+      osc6Type += val;
+      if (osc6Type < 0) osc6Type = numOscTypes - 1;
+      if (osc6Type >= numOscTypes) osc6Type = 0;
+    } else if (editMode && currentMenu == 5 && currentSelection == 3) {
+      if (val != 0) osc0Chains[1] ^= 1;
+    } else if (editMode && currentMenu == 6 && currentSelection == 3) {
+      if (val != 0) osc0Chains[2] ^= 1;
+    } else if (editMode && currentMenu == 7 && currentSelection == 3) {
+      if (val != 0) osc0Chains[3] ^= 1;
+    } else if (editMode && currentMenu == 8 && currentSelection == 3) {
+      if (val != 0) osc0Chains[4] ^= 1;
+    } else if (editMode && currentMenu == 9 && currentSelection == 3) {
+      if (val != 0) osc0Chains[5] ^= 1;
     } else {
       // Navigation mode: move cursor up/down
       currentSelection += (val > 0) ? 1 : -1;
@@ -211,12 +280,32 @@ void handleEncoderMenu() {
       menuNeedsRedraw = true;
       return;
     }
-    else if (currentMenu == 3 && currentSelection == 1) {
+    else if (currentMenu == 4 && currentSelection == 0) {
       editMode = !editMode;
       menuNeedsRedraw = true;
       return;
     }
-    else if (currentMenu == 3 && currentSelection == 2) {
+    else if (currentMenu == 5 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
+      editMode = !editMode;
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 6 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
+      editMode = !editMode;
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 7 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
+      editMode = !editMode;
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 8 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
+      editMode = !editMode;
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 9 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
       editMode = !editMode;
       menuNeedsRedraw = true;
       return;
@@ -234,32 +323,40 @@ void handleEncoderMenu() {
       currentMenu = 3;
       currentSelection = 0;
       scrollOffset = 0;
-    } else if (strcmp(choice, "OSC 1 ENV 1") == 0) {
+    } else if (strcmp(choice, "OSC 1") == 0) {
       currentMenu = 4;
       currentSelection = 0;
       scrollOffset = 0;
-    } else if (strcmp(choice, "OSC 1 ENV 2") == 0) {
+    } else if (strcmp(choice, "OSC 2") == 0) {
       currentMenu = 5;
       currentSelection = 0;
       scrollOffset = 0;
-    } else if (strcmp(choice, "OSC 2 ENV 1") == 0) {
+    } else if (strcmp(choice, "OSC 3") == 0) {
       currentMenu = 6;
       currentSelection = 0;
       scrollOffset = 0;
-    } else if (strcmp(choice, "OSC 2 ENV 2") == 0) {
+    } else if (strcmp(choice, "OSC 4") == 0) {
       currentMenu = 7;
       currentSelection = 0;
       scrollOffset = 0;
-    } else if (strcmp(choice, "LFO") == 0) {
+    } else if (strcmp(choice, "OSC 5") == 0) {
       currentMenu = 8;
       currentSelection = 0;
       scrollOffset = 0;
-    } else if (strcmp(choice, "Filter Cutoff") == 0) {
+    } else if (strcmp(choice, "OSC 6") == 0) {
       currentMenu = 9;
       currentSelection = 0;
       scrollOffset = 0;
+    } else if (strcmp(choice, "LFO") == 0) {
+      currentMenu = 22;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "Filter Cutoff") == 0) {
+      currentMenu = 23;
+      currentSelection = 0;
+      scrollOffset = 0;
     } else if (strcmp(choice, "Resonance") == 0) {
-      currentMenu = 10;
+      currentMenu = 24;
       currentSelection = 0;
       scrollOffset = 0;
     } else if (strcmp(choice, "Save") == 0) {
@@ -273,6 +370,7 @@ void handleEncoderMenu() {
     }
     editMode = false; // always exit edit mode after navigating
     menuNeedsRedraw = true;
+    updateUserPatch();
   }
 }
 
@@ -287,10 +385,6 @@ void drawMenu() {
   for (int i = scrollOffset; i < menus[currentMenu].numItems && i < scrollOffset + visibleItems; i++) {
     bool selected = (i == currentSelection);
     int y = 12 + (i - scrollOffset) * 10;
-
-    Serial.println("");
-    Serial.print("i is: ");
-    Serial.print(i);
     if (selected) {
       display.fillRect(0, y, SCREEN_WIDTH, 10, SSD1306_WHITE);
       display.setTextColor(SSD1306_BLACK);
@@ -300,7 +394,7 @@ void drawMenu() {
     display.setCursor(2, y);
     // --- Patch submenu dynamic patch number ---
     if (currentMenu == 2 && i == 0) {
-      if (editMode && i==0) {
+      if (editMode && currentSelection==0) {
         char buf[20];
         snprintf(buf, sizeof(buf), "Patch: [%02d]", patchNumber);
         display.println(buf);
@@ -315,7 +409,7 @@ void drawMenu() {
       amy_add_event(&e);
     // --- User Patch: Patch Number ---
     } else if (currentMenu == 3 && i == 0) {
-      if (editMode && i==0) {
+      if (editMode && currentSelection==0) {
         char buf[20];
         snprintf(buf, sizeof(buf), "Patch: [%02d]", patchNumber);
         display.println(buf);
@@ -329,45 +423,121 @@ void drawMenu() {
       e.patch_number = patchNumber;
       amy_add_event(&e);
     // --- User Patch: OSC 1 type ---
-    } else if (currentMenu == 3 && i == 1) {
-      if (editMode && i==1) {
-        display.print("OSC 1: [");
+    } else if (currentMenu == 4 && i == 0) {
+      if (editMode && currentSelection==0) {
+        display.print("Wave: [");
         display.print(oscTypes[osc1Type]);
         display.println("]");
       } else {
-        display.print("OSC 1: ");
+        display.print("Wave: ");
         display.println(oscTypes[osc1Type]);
       }
-      amy_event e = amy_default_event();
-      e.synth = 1;
-      e.reset_osc = 1;
-      amy_add_event(&e);
-      e.synth = 1;
-      e.patch_number = patchNumber;
-      e.num_voices = 6;
-      e.osc = 1;
-      e.wave = osc1Type;
-      amy_add_event(&e);
+      // updateUserPatch();
     // --- User Patch: OSC 2 type ---
-    } else if (currentMenu == 3 && i == 2) {
-      if (editMode && i==2) {
-        display.print("OSC 2: [");
+    } else if (currentMenu == 5 && i == 0) {
+      if (editMode && currentSelection==0) {
+        display.print("Wave: [");
         display.print(oscTypes[osc2Type]);
         display.println("]");
       } else {
-        display.print("OSC 2: ");
+        display.print("Wave: ");
         display.println(oscTypes[osc2Type]);
       }
-      amy_event e = amy_default_event();
-      e.synth = 1;
-      e.reset_osc = 2;
-      amy_add_event(&e);
-      e.synth = 1;
-      e.patch_number = patchNumber;
-      e.num_voices = 6;
-      e.osc = 2;
-      e.wave = osc2Type;
-      amy_add_event(&e);
+      // updateUserPatch();
+    } else if (currentMenu == 5 && i == 3) {
+      if (editMode && currentSelection==3) {
+        display.print("OSC 1 Chain: [");
+        display.print(osc0Chains[1]);
+        display.println("]");
+      } else {
+        display.print("OSC 1 Chain: ");
+        display.println(osc0Chains[1]);
+      }
+      // updateUserPatch();
+    // --- User Patch: OSC 3 type ---  
+    } else if (currentMenu == 6 && i == 0) {
+      if (editMode && currentSelection==0) {
+        display.print("Wave: [");
+        display.print(oscTypes[osc3Type]);
+        display.println("]");
+      } else {
+        display.print("Wave: ");
+        display.println(oscTypes[osc3Type]);
+      }
+      // updateUserPatch();
+    } else if (currentMenu == 6 && i == 3) {
+      if (editMode && currentSelection==3) {
+        display.print("OSC 1 Chain: [");
+        display.print(osc0Chains[2]);
+        display.println("]");
+      } else {
+        display.print("OSC 1 Chain: ");
+        display.println(osc0Chains[2]);
+      }
+      // updateUserPatch();
+    // --- User Patch: OSC 4 type ---
+    } else if (currentMenu == 7 && i == 0) {
+      if (editMode && currentSelection==0) {
+        display.print("Wave: [");
+        display.print(oscTypes[osc4Type]);
+        display.println("]");
+      } else {
+        display.print("Wave: ");
+        display.println(oscTypes[osc4Type]);
+      }
+      // updateUserPatch();
+    } else if (currentMenu == 7 && i == 3) {
+      if (editMode && currentSelection==3) {
+        display.print("OSC 1 Chain: [");
+        display.print(osc0Chains[3]);
+        display.println("]");
+      } else {
+        display.print("OSC 1 Chain: ");
+        display.println(osc0Chains[3]);
+      }
+      // updateUserPatch();
+    // --- User Patch: OSC 5 type ---
+    } else if (currentMenu == 8 && i == 0) {
+      if (editMode && currentSelection==0) {
+        display.print("Wave: [");
+        display.print(oscTypes[osc5Type]);
+        display.println("]");
+      } else {
+        display.print("Wave: ");
+        display.println(oscTypes[osc5Type]);
+      }
+      // updateUserPatch();
+    // --- User Patch: OSC 6 type ---
+    } else if (currentMenu == 8 && i == 3) {
+      if (editMode && currentSelection==3) {
+        display.print("OSC 1 Chain: [");
+        display.print(osc0Chains[4]);
+        display.println("]");
+      } else {
+        display.print("OSC 1 Chain: ");
+        display.println(osc0Chains[4]);
+      }
+      // updateUserPatch();
+    } else if (currentMenu == 9 && i == 0) {
+      if (editMode && currentSelection==0) {
+        display.print("Wave: [");
+        display.print(oscTypes[osc6Type]);
+        display.println("]");
+      } else {
+        display.print("Wave: ");
+        display.println(oscTypes[osc6Type]);
+      }
+      // updateUserPatch();
+    } else if (currentMenu == 9 && i == 3) {
+      if (editMode && currentSelection==3) {
+        display.print("OSC 1 Chain: [");
+        display.print(osc0Chains[5]);
+        display.println("]");
+      } else {
+        display.print("OSC 1 Chain: ");
+        display.println(osc0Chains[5]);
+      }
+      // updateUserPatch();
     // --- Default item rendering ---
     } else {
       display.println(menus[currentMenu].items[i]);
@@ -397,7 +567,6 @@ void setup() {
   pinMode(pinA, INPUT_PULLUP);
   pinMode(pinB, INPUT_PULLUP);
   pinMode(pinSW, INPUT_PULLUP);
-
   Serial.begin(115200);
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
@@ -500,7 +669,7 @@ void loop() {
   float targetCutoff = fmap(stickXValue, 0.0f, 4095.0f, 180.0f, 8000.0f);
   cutoff += (targetCutoff - cutoff) * 0.1f;
 
-  float resonance = 0.7f + (potValue / 4095.0f) * (7.0f - 0.7f);
+  float resonance = 0.7f + (potValue / 4095.0f) * (16.0f - 0.7f);
 
   float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   pitchBend += (targetPitchBend - pitchBend) * smoothing;
@@ -512,6 +681,4 @@ void loop() {
   e.resonance = resonance; 
   e.pitch_bend = pitchBend;
   amy_add_event(&e);
-  Serial.println(pitchBend);
-  Serial.println(cutoff);
 }
