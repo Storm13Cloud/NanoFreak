@@ -165,25 +165,41 @@ void noteOff(int i) {
 void updateUserPatch() {
   amy_event e = amy_default_event();
   e.patch_number = patchNumber;
+  Serial.println("Patch reset");
   e.reset_osc = RESET_PATCH;
   amy_add_event(&e);
+  e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 0;
   e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
-  for (int i = 1; i < 6; i++) {
-    if (osc0Chains[i] && i != 0) {
-      e.osc = 0;
-      e.chained_osc = i;
+  amy_add_event(&e);
+  int lastChained = -1;
+  for (int i = 1; i < 5; i++) {
+    if (osc0Chains[i]) {
+      e = amy_default_event();
+      e.patch_number = patchNumber;
+      if (lastChained != -1) {
+        e.osc = lastChained;
+        e.chained_osc = i;
+        Serial.printf("\nOSC %d chained to %d \n", lastChained, i);
+      } else if (lastChained == -1) {
+        e.osc = 0;
+        e.chained_osc = i;
+        Serial.printf("\nOSC 0 chained to %d \n", i);
+      }
       amy_add_event(&e);
+      lastChained = i;
     }
   }
-  amy_add_event(&e);
+  e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 1;
   e.wave = (osc2Type == 0) ? 16 : (osc2Type - 1);
   e.num_voices = 6;
   amy_add_event(&e);
+  e = amy_default_event();
   e.synth = 1;
+  e.patch_number = patchNumber;
   amy_add_event(&e);
 }
 
@@ -196,7 +212,7 @@ void handleEncoderMenu() {
   
   // --- Handle rotation ---
   if (val = read_rotary()) {
-    Serial.print(val);
+    // Serial.print(val);
     if (editMode && currentMenu == 2 && currentSelection == 0) {
       // In edit mode: adjust patch number
       patchNumber += val;
@@ -432,7 +448,6 @@ void drawMenu() {
         display.print("Wave: ");
         display.println(oscTypes[osc1Type]);
       }
-      // updateUserPatch();
     // --- User Patch: OSC 2 type ---
     } else if (currentMenu == 5 && i == 0) {
       if (editMode && currentSelection==0) {
@@ -443,7 +458,6 @@ void drawMenu() {
         display.print("Wave: ");
         display.println(oscTypes[osc2Type]);
       }
-      // updateUserPatch();
     } else if (currentMenu == 5 && i == 3) {
       if (editMode && currentSelection==3) {
         display.print("OSC 1 Chain: [");
@@ -453,7 +467,6 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[1]);
       }
-      // updateUserPatch();
     // --- User Patch: OSC 3 type ---  
     } else if (currentMenu == 6 && i == 0) {
       if (editMode && currentSelection==0) {
@@ -464,7 +477,6 @@ void drawMenu() {
         display.print("Wave: ");
         display.println(oscTypes[osc3Type]);
       }
-      // updateUserPatch();
     } else if (currentMenu == 6 && i == 3) {
       if (editMode && currentSelection==3) {
         display.print("OSC 1 Chain: [");
@@ -474,7 +486,6 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[2]);
       }
-      // updateUserPatch();
     // --- User Patch: OSC 4 type ---
     } else if (currentMenu == 7 && i == 0) {
       if (editMode && currentSelection==0) {
@@ -485,7 +496,6 @@ void drawMenu() {
         display.print("Wave: ");
         display.println(oscTypes[osc4Type]);
       }
-      // updateUserPatch();
     } else if (currentMenu == 7 && i == 3) {
       if (editMode && currentSelection==3) {
         display.print("OSC 1 Chain: [");
@@ -495,7 +505,6 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[3]);
       }
-      // updateUserPatch();
     // --- User Patch: OSC 5 type ---
     } else if (currentMenu == 8 && i == 0) {
       if (editMode && currentSelection==0) {
@@ -506,7 +515,6 @@ void drawMenu() {
         display.print("Wave: ");
         display.println(oscTypes[osc5Type]);
       }
-      // updateUserPatch();
     // --- User Patch: OSC 6 type ---
     } else if (currentMenu == 8 && i == 3) {
       if (editMode && currentSelection==3) {
@@ -517,7 +525,6 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[4]);
       }
-      // updateUserPatch();
     } else if (currentMenu == 9 && i == 0) {
       if (editMode && currentSelection==0) {
         display.print("Wave: [");
@@ -527,7 +534,6 @@ void drawMenu() {
         display.print("Wave: ");
         display.println(oscTypes[osc6Type]);
       }
-      // updateUserPatch();
     } else if (currentMenu == 9 && i == 3) {
       if (editMode && currentSelection==3) {
         display.print("OSC 1 Chain: [");
@@ -537,7 +543,6 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[5]);
       }
-      // updateUserPatch();
     // --- Default item rendering ---
     } else {
       display.println(menus[currentMenu].items[i]);
