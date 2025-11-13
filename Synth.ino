@@ -61,6 +61,8 @@ const int numKeys = 12;
 bool keyState[numKeys];
 bool lastKeyState[numKeys];
 
+const char* envelope = "200,1,700,0.5,200,0.4,1000,0";
+
 int midiNote = 50;
 int currentNote = 0;
 
@@ -172,6 +174,7 @@ void updateUserPatch() {
   e.patch_number = patchNumber;
   e.osc = 0;
   e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
+  strcpy(e.bp0, envelope);
   amy_add_event(&e);
   int lastChained = -1;
   for (int i = 1; i < 5; i++) {
@@ -195,26 +198,31 @@ void updateUserPatch() {
   e.patch_number = patchNumber;
   e.osc = 1;
   e.wave = (osc2Type == 0) ? 16 : (osc2Type - 1);
+  strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 2;
   e.wave = (osc3Type == 0) ? 16 : (osc3Type - 1);
+  strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 3;
   e.wave = (osc4Type == 0) ? 16 : (osc4Type - 1);
+  strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 4;
   e.wave = (osc5Type == 0) ? 16 : (osc5Type - 1);
+  strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 5;
   e.wave = (osc6Type == 0) ? 16 : (osc6Type - 1);
+  strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.synth = 1;
