@@ -15,8 +15,20 @@ Adafruit_MCP23X17 mcp;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
-int potPin = 1;
-int potValue = 0;  // Raw 0–4095
+static unsigned long lastEnvelopeUpdate = 0;
+const unsigned long envelopeInterval = 200; // ms
+static char lastEnvelope[50] = "";
+
+
+int resonancePot = 1;
+int resonancePotValue = 0;  // Raw 0–4095
+int attackPot = 13;
+int attackPotValue = 13;
+int decayPot = 12;
+int decayPotValue = 12;
+int releasePot = 11;
+int releasePotValue = 11;
+
 float cutoff = 0.0f;
 float lastCutoff = -1.0f;
 float resonance = 0.7f;  // starting resonance
@@ -61,7 +73,11 @@ const int numKeys = 12;
 bool keyState[numKeys];
 bool lastKeyState[numKeys];
 
-const char* envelope = "200,1,700,0.5,200,0.4,1000,0";
+// const char* envelope = "200,1,700,0.5,200,0.4,1000,0";
+int a = 200;
+int b = 700;
+int c = 1000;
+char envelope[50];  // Output buffer
 
 int midiNote = 50;
 int currentNote = 0;
@@ -446,11 +462,11 @@ void drawMenu() {
         display.print("Patch: ");
         display.println(patchNumber);
       }
-      amy_event e = amy_default_event();
-      e.synth = 1;
-      e.num_voices = 6;
-      e.patch_number = patchNumber;
-      amy_add_event(&e);
+      // amy_event e = amy_default_event();
+      // e.synth = 1;
+      // e.num_voices = 6;
+      // e.patch_number = patchNumber;
+      // amy_add_event(&e);
     // --- User Patch: Patch Number ---
     } else if (currentMenu == 3 && i == 0) {
       if (editMode && currentSelection==0) {
@@ -461,11 +477,11 @@ void drawMenu() {
         display.print("Patch: ");
         display.println(patchNumber);
       }
-      amy_event e = amy_default_event();
-      e.synth = 1;
-      e.num_voices = 6;
-      e.patch_number = patchNumber;
-      amy_add_event(&e);
+      // amy_event e = amy_default_event();
+      // e.synth = 1;
+      // e.num_voices = 6;
+      // e.patch_number = patchNumber;
+      // amy_add_event(&e);
     // --- User Patch: OSC 1 type ---
     } else if (currentMenu == 4 && i == 0) {
       if (editMode && currentSelection==0) {
@@ -678,7 +694,10 @@ void loop() {
     }
   }
   amy_update();
-  potValue = analogRead(potPin);
+  resonancePotValue = analogRead(resonancePot);
+  attackPotValue = analogRead(attackPot);
+  decayPotValue = analogRead(decayPot);
+  releasePotValue = analogRead(releasePot);
 
   // --- Read and average joystick X ---
   long totalX = 0;
@@ -702,8 +721,17 @@ void loop() {
   float targetCutoff = fmap(stickXValue, 0.0f, 4095.0f, 180.0f, 8000.0f);
   cutoff += (targetCutoff - cutoff) * 0.1f;
 
-  float resonance = 0.7f + (potValue / 4095.0f) * (16.0f - 0.7f);
+  float resonance = 0.7f + (resonancePotValue / 4095.0f) * (16.0f - 0.7f);
+  int a = (attackPotValue * 7000) / 4095;
+  int b = (decayPotValue * 7000) / 4095;
+  int c = (releasePotValue * 7000) / 4095;
 
+  snprintf(
+    envelope,
+    sizeof(envelope),
+    "%d,1,%d,0.5,30,0.4,%d,0",
+    a, b, c
+  );
   float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
