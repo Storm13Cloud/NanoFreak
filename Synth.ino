@@ -23,11 +23,16 @@ static char lastEnvelope[50] = "";
 int resonancePot = 1;
 int resonancePotValue = 0;  // Raw 0–4095
 int attackPot = 13;
-int attackPotValue = 13;
+int attackPotValue = 0;
 int decayPot = 12;
-int decayPotValue = 12;
+int decayPotValue = 0;
 int releasePot = 11;
-int releasePotValue = 11;
+int releasePotValue = 0;
+
+const int stickX = 4;
+const int stickY = 5;
+float stickXValue = 0;
+float stickYValue = 0;
 
 float cutoff = 0.0f;
 float lastCutoff = -1.0f;
@@ -35,7 +40,12 @@ float resonance = 0.7f;  // starting resonance
 float pitchBend = 0.0f;
 float targetPitchBend = 0.0f;
 float targetCutoff = 0.0f;
-float smoothing = 0.1f; 
+float smoothing = 0.1f;
+
+float targetAttack = 0.0f;
+float targetDecay = 0.0f;
+float targetRelease = 0.0f;
+
 int osc1Type = 0;
 int osc2Type = 0;
 int osc3Type = 0;
@@ -49,17 +59,20 @@ const int pinA = 36;   // CLK
 const int pinB = 39;   // DT
 const int pinSW = 41;  // Button (optional)
 
-const int stickX = 4;
-const int stickY = 5;
-float stickXValue = 0;
-float stickYValue = 0;
-float prevStickYValue = 0;
-float prevStickXValue = 0;
+// float prevStickYValue = 0;
+// float prevStickXValue = 0;
 
 long totalX = 0;
 float samplesX = 4;
 long totalY = 0;
 float samplesY = 4;
+
+long totalAttack = 0;
+float samplesAttack = 4;
+long totalDecay = 0;
+float samplesDecay = 4;
+long totalRelease = 0;
+float samplesRelease = 4;
 
 static uint8_t prevNextCode = 0;
 static uint16_t store=0;
@@ -715,9 +728,9 @@ void loop() {
   }
   amy_update();
   resonancePotValue = analogRead(resonancePot);
-  attackPotValue = analogRead(attackPot);
-  decayPotValue = analogRead(decayPot);
-  releasePotValue = analogRead(releasePot);
+  // attackPotValue = analogRead(attackPot);
+  // decayPotValue = analogRead(decayPot);
+  // releasePotValue = analogRead(releasePot);
 
   // --- Read and average joystick X ---
   long totalX = 0;
@@ -733,18 +746,45 @@ void loop() {
   }
   float newStickYValue = totalY / (float)samplesY;
 
+  // --- Read and average attack pot ---
+  long totalAttack = 0;
+  for (int i = 0; i < samplesAttack; i++) {
+    totalAttack += analogRead(attackPot);
+  }
+  float newAttackValue = totalAttack / (float)samplesAttack;
+
+  // --- Read and average decay pot ---
+  long totalDecay = 0;
+  for (int i = 0; i < samplesDecay; i++) {
+    totalDecay += analogRead(decayPot);
+  }
+  float newDecayValue = totalDecay / (float)samplesDecay;
+
+  // --- Read and average release pot ---
+  long totalRelease = 0;
+  for (int i = 0; i < samplesRelease; i++) {
+    totalRelease += analogRead(releasePot);
+  }
+  float newReleaseValue = totalRelease / (float)samplesRelease;
+
   // --- Exponential smoothing (low-pass filter) ---
   stickXValue = (stickXValue * 0.85f) + (newStickXValue * 0.15f);
   stickYValue = (stickYValue * 0.85f) + (newStickYValue * 0.15f);
+  attackPotValue = (attackPotValue * 0.85f) + (newAttackValue * 0.15f);
+  decayPotValue = (decayPotValue * 0.85f) + (newDecayValue * 0.15f);
+  releasePotValue = (releasePotValue * 0.85f) + (newReleaseValue * 0.15f);
 
   // --- Map and process controls ---
   float targetCutoff = fmap(stickXValue, 0.0f, 4095.0f, 180.0f, 8000.0f);
   cutoff += (targetCutoff - cutoff) * 0.1f;
 
   float resonance = 0.7f + (resonancePotValue / 4095.0f) * (16.0f - 0.7f);
-  int a = (attackPotValue * 7000) / 4095;
-  int b = (decayPotValue * 7000) / 4095;
-  int c = (releasePotValue * 7000) / 4095;
+  int a = (attackPotValue * 7000) / 4095 - 50;
+  if (a < 0) a = 0;
+  int b = (decayPotValue * 7000) / 4095 - 30;
+  if (b < 0) b =0;
+  int c = (releasePotValue * 7000) / 4095 -30;
+  if (c < 0) c = 0;
 
   snprintf(
     envelope,
@@ -752,13 +792,13 @@ void loop() {
     "%d,1,%d,0.5,30,0.4,%d,0",
     a, b, c
   );
-
+  Serial.println(envelope);
   float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
   updateEnvelope();
   // amy_event e = amy_default_event();
-  e = amy_default_event();
+  amy_event e = amy_default_event();
   e.synth = 1;             // target same osc
   e.filter_freq_coefs[0] = cutoff;
   e.filter_type = 1; 
