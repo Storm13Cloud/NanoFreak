@@ -247,6 +247,23 @@ void updateUserPatch() {
   amy_add_event(&e);
 }
 
+void updateEnvelope() {
+  amy_event e = amy_default_event();
+  e.synth = 1;
+  e.osc = 0;
+  strcpy(e.bp0, envelope);
+  amy_add_event(&e);
+  for (int i = 1; i < 5; i++) {
+    if (osc0Chains[i]) {
+      e = amy_default_event();
+      e.synth = 1;
+      e.osc = i;
+      strcpy(e.bp0, envelope);
+      amy_add_event(&e);
+    }
+  }
+}
+
 void handleEncoderMenu() {
   static int lastPos = 0;
   static unsigned int lastPress = 0;
@@ -661,6 +678,9 @@ static long last_millis = 0;
 static const long millis_interval = 250;
 static bool led_state = 0;
 
+unsigned long lastEnvUpdate = 0;
+const unsigned long envInterval = 250;  // 250 ms
+
 void loop() {
   handleEncoderMenu();
   if (menuNeedsRedraw) {
@@ -732,14 +752,18 @@ void loop() {
     "%d,1,%d,0.5,30,0.4,%d,0",
     a, b, c
   );
+
   float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
-  amy_event e = amy_default_event();
+  updateEnvelope();
+  // amy_event e = amy_default_event();
+  e = amy_default_event();
   e.synth = 1;             // target same osc
   e.filter_freq_coefs[0] = cutoff;
   e.filter_type = 1; 
   e.resonance = resonance; 
   e.pitch_bend = pitchBend;
   amy_add_event(&e);
+
 }
