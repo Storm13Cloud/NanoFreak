@@ -19,6 +19,9 @@ static unsigned long lastEnvelopeUpdate = 0;
 const unsigned long envelopeInterval = 200; // ms
 static char lastEnvelope[50] = "";
 
+//cpu usage
+unsigned long lastPrint = 0;
+unsigned long loopCounter = 0;
 
 int resonancePot = 1;
 int resonancePotValue = 0;  // Raw 0–4095
@@ -642,7 +645,7 @@ void setup() {
   pinMode(filterType, INPUT_PULLUP);
   pinMode(octDown, INPUT_PULLUP);
   Wire.begin(8, 9);
-  Wire.setClock(100000);
+  // Wire.setClock(100000);
   pinMode(pinA, INPUT_PULLUP);
   pinMode(pinB, INPUT_PULLUP);
   pinMode(pinSW, INPUT_PULLUP);
@@ -696,6 +699,16 @@ const unsigned long envInterval = 250;  // 250 ms
 
 void loop() {
   handleEncoderMenu();
+  // ~ cpu usage
+  loopCounter++;
+  if (millis() - lastPrint >= 1000) {
+    Serial.print("Loops per second: ");
+    Serial.println(loopCounter);
+
+    loopCounter = 0;
+    lastPrint = millis();
+  }
+  //
   if (menuNeedsRedraw) {
     drawMenu();
     menuNeedsRedraw = false;
@@ -792,7 +805,7 @@ void loop() {
     "%d,1,%d,0.5,30,0.4,%d,0",
     a, b, c
   );
-  Serial.println(envelope);
+  // Serial.println(envelope);
   float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
