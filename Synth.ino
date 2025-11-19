@@ -71,11 +71,11 @@ long totalY = 0;
 float samplesY = 4;
 
 long totalAttack = 0;
-float samplesAttack = 4;
+float samplesAttack = 8;
 long totalDecay = 0;
-float samplesDecay = 4;
+float samplesDecay = 8;
 long totalRelease = 0;
-float samplesRelease = 4;
+float samplesRelease = 8;
 
 static uint8_t prevNextCode = 0;
 static uint16_t store=0;
@@ -495,11 +495,6 @@ void drawMenu() {
         display.print("Patch: ");
         display.println(patchNumber);
       }
-      // amy_event e = amy_default_event();
-      // e.synth = 1;
-      // e.num_voices = 6;
-      // e.patch_number = patchNumber;
-      // amy_add_event(&e);
     // --- User Patch: Patch Number ---
     } else if (currentMenu == 3 && i == 0) {
       if (editMode && currentSelection==0) {
@@ -510,11 +505,6 @@ void drawMenu() {
         display.print("Patch: ");
         display.println(patchNumber);
       }
-      // amy_event e = amy_default_event();
-      // e.synth = 1;
-      // e.num_voices = 6;
-      // e.patch_number = patchNumber;
-      // amy_add_event(&e);
     // --- User Patch: OSC 1 type ---
     } else if (currentMenu == 4 && i == 0) {
       if (editMode && currentSelection==0) {
