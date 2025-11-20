@@ -286,6 +286,7 @@ void handleEncoderMenu() {
   const unsigned int debounce = 250;
 
   static int8_t c, val;
+  if (currentMenu >= 10 && currentMenu <= 21) menuNeedsRedraw = true;
   
   // --- Handle rotation ---
   if (val = read_rotary()) {
@@ -438,6 +439,54 @@ void handleEncoderMenu() {
       scrollOffset = 0;
     } else if (strcmp(choice, "OSC 6") == 0) {
       currentMenu = 9;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 1") == 0 && currentMenu == 4) {
+      currentMenu = 10;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 2") == 0 && currentMenu == 4) {
+      currentMenu = 11;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 1") == 0 && currentMenu == 5) {
+      currentMenu = 12;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 2") == 0 && currentMenu == 5) {
+      currentMenu = 13;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 1") == 0 && currentMenu == 6) {
+      currentMenu = 14;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 2") == 0 && currentMenu == 6) {
+      currentMenu = 15;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 1") == 0 && currentMenu == 7) {
+      currentMenu = 16;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 2") == 0 && currentMenu == 7) {
+      currentMenu = 17;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 1") == 0 && currentMenu == 8) {
+      currentMenu = 18;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 2") == 0 && currentMenu == 8) {
+      currentMenu = 19;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 1") == 0 && currentMenu == 9) {
+      currentMenu = 20;
+      currentSelection = 0;
+      scrollOffset = 0;
+    } else if (strcmp(choice, "ENV 2") == 0 && currentMenu == 9) {
+      currentMenu = 21;
       currentSelection = 0;
       scrollOffset = 0;
     } else if (strcmp(choice, "LFO") == 0) {
@@ -609,6 +658,24 @@ void drawMenu() {
       } else {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[5]);
+      }
+    } else if (currentMenu == 10 && i == 0) {
+      if (editMode && currentSelection==0) {
+        display.printf("A: [%d]", a);
+      } else {
+        display.printf("A: %d", a);
+      }
+    } else if (currentMenu == 10 && i == 1) {
+      if (editMode && currentSelection==1) {
+        display.printf("D: [%d]", b);
+      } else {
+        display.printf("D: %d", b);
+      }
+    } else if (currentMenu == 10 && i == 3) {
+      if (editMode && currentSelection==3) {
+        display.printf("R: [%d]", c);
+      } else {
+        display.printf("R: %d", c);
       }
     // --- Default item rendering ---
     } else {
@@ -782,11 +849,11 @@ void loop() {
   cutoff += (targetCutoff - cutoff) * 0.1f;
 
   float resonance = 0.7f + (resonancePotValue / 4095.0f) * (16.0f - 0.7f);
-  int a = (attackPotValue * 7000) / 4095 - 50;
+  a = (attackPotValue * 7000) / 4095 - 50;
   if (a < 0) a = 0;
-  int b = (decayPotValue * 7000) / 4095 - 30;
+  b = (decayPotValue * 7000) / 4095 - 30;
   if (b < 0) b =0;
-  int c = (releasePotValue * 7000) / 4095 -30;
+   c = (releasePotValue * 7000) / 4095 -30;
   if (c < 0) c = 0;
 
   snprintf(
