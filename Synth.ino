@@ -404,6 +404,11 @@ void handleEncoderMenu() {
       menuNeedsRedraw = true;
       return;
     }
+    else if (currentMenu == 10 && (currentSelection == 0 || currentSelection == 2 || currentSelection == 3)) {
+      editMode = !editMode;
+      menuNeedsRedraw = true;
+      return;
+    }
     const char* choice = menus[currentMenu].items[currentSelection];
     if (strcmp(choice, "Settings") == 0) {
       currentMenu = 1;
