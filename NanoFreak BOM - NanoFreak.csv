@@ -1,0 +1,62 @@
+Reference,Qty,Value,DNP,Exclude from BOM,Exclude from Board,Footprint,Datasheet,,
+BT1,1,Single Cell LiPo,,,,Battery:BatteryHolder_Keystone_1042_1x18650,https://www.digikey.com/en/products/detail/keystone-electronics/1042/2745668,4.63,4.63
+BT1,1,Single Cell LiPo,,,,Protected 3500mAh 10A 18650 Button Top,https://liionwholesale.com/products/protected-panasonic-sanyo-ncr18650ga-button-top?variant=12534255236,11.99,11.99
+"C1,C2",2,100nF,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/kemet/C0603C104K8RACTU/411094,0.04,0.08
+"C3,C4",2,2.2nF,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/kyocera-avx/KGM15AR71C222KT/1600552,0.03,0.06
+C5,1,10µF,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10A106KP8NNNC/3886850,0.03,0.03
+"C6,C9,C10,C18",4,0.1µF,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/yageo/CC0603KRX7R7BB104/302822,0.06,0.24
+"C7,C8",2,2.2µF,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B225KP8NNNC/3886792,0.02,0.04
+"C11,C13",2,4.7µf,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10A475KP8NNNC/3886702,0.01,0.02
+C12,1,10µf,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10A106KP8NNNC/3886850,0.03,0.03
+"C14,C15",2,1µf,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B105KP8NNNC/3887604,0.01,0.02
+"C16,C17",2,0.1µf,,,,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/yageo/CC0603KRX7R7BB104/302822,0.01,0.02
+"D1,D2,D3",3,D,,,,Diode_SMD:D_0603_1608Metric_Pad1.05x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/liteon/LTW-C191DS5/3198814,0.2,0.6
+D4,1,D_Schottky,,,,Diode_SMD:D_0603_1608Metric_Pad1.05x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/bourns-inc/CD0603-B0240R/7796827,0.13,0.13
+"D5,D6,D7",3,LED,,,,LED_THT:LED_D3.0mm,https://www.digikey.com/en/products/detail/tt-electronics-optek-technology/OVLGC0C6B9/827121,0.47,1.41
+J1,1,Audio Out,,,,Connector_Audio:Jack_3.5mm_CUI_SJ1-3523N_Horizontal,https://www.digikey.com/en/products/detail/same-sky-formerly-cui-devices/SJ1-3523N/738689,0.7,0.7
+J2,1,MIDI In,,,,Connector_Audio:Jack_3.5mm_CUI_SJ1-3523N_Horizontal,https://www.digikey.com/en/products/detail/same-sky-formerly-cui-devices/SJ1-3523N/738689,0.7,0.7
+J3,1,Micro_SD_Card,,,,Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5,https://www.digikey.com/en/products/detail/hirose-electric-co-ltd/DM3AT-SF-PEJM5/2533565,2.25,2.25
+"R1,R2,R3,R4,R5,R6,R18,R22,R23,R24,R25,R26,R27",13,10k,,,,Resistor_SMD:R_0603_1608Metric,https://www.digikey.com/en/products/detail/yageo/RC0603FR-0710KL/726880,0.05,0.65
+"R7,R8,R13,R14,R15",5,470,,,,Resistor_SMD:R_0603_1608Metric,https://www.digikey.com/en/products/detail/te-connectivity-passive-product/CRGCQ0603F470R/8576286,0.02,0.1
+"R9,R10,R11",3,22,,,,Resistor_SMD:R_0603_1608Metric,https://www.digikey.com/en/products/detail/yageo/RC0603FR-0722RL/727055,0.01,0.03
+"R12,R19,R28,R29",4,220,,,,Resistor_SMD:R_0603_1608Metric,https://www.digikey.com/en/products/detail/te-connectivity-passive-product/CRGCQ0603J220R/8576689,0.01,0.04
+R16,1,4k,,,,Resistor_SMD:R_0603_1608Metric,https://www.digikey.com/en/products/detail/yageo/RC0603FR-074K02L/727203,0.01,0.01
+R17,1,5.7k 5k-6k,,,,Resistor_SMD:R_0603_1608Metric,https://www.digikey.com/en/products/detail/yageo/RC0603FR-075K62L/727277,0.01,0.01
+R20,1,270,,,,Resistor_SMD:R_0603_1608Metric,https://www.digikey.com/en/products/detail/stackpole-electronics-inc/RMCF0603FT270R/1713845,0.01,0.01
+"R21,R30",2,4.7k,,,,Resistor_SMD:R_0603_1608Metric,https://www.digikey.com/en/products/detail/yageo/RC0603FR-074K7L/727212,0.01,0.02
+RV1,1,Attack,,,,Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical,https://www.digikey.com/en/products/detail/bourns-inc/PTV09A-4025U-B103/3781137,0.7,0.7
+RV2,1,Decay,,,,Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical,https://www.digikey.com/en/products/detail/bourns-inc/PTV09A-4025U-B103/3781137,0.7,0.7
+RV3,1,Sustain,,,,Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical,https://www.digikey.com/en/products/detail/bourns-inc/PTV09A-4025U-B103/3781137,0.7,0.7
+RV4,1,Release,,,,Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical,https://www.digikey.com/en/products/detail/bourns-inc/PTV09A-4025U-B103/3781137,0.7,0.7
+RV5,1,Cutoff,,,,Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical,https://www.digikey.com/en/products/detail/bourns-inc/PTV09A-4025U-B103/3781137,0.7,0.7
+RV6,1,Resonance,,,,Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical,https://www.digikey.com/en/products/detail/bourns-inc/PTV09A-4025U-B103/3781137,0.7,0.7
+RV7,1,Volume,,,,Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical,https://www.digikey.com/en/products/detail/bourns-inc/PTV09A-4025U-B103/3781137,0.7,0.7
+SW1,1,Control Rotary,,,,Rotary_Encoder:RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm,https://www.digikey.com/en/products/detail/alps-alpine/EC11E1820402/21721574,3.4,3.4
+SW2,1,Oct +,,,,Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2,https://www.digikey.com/en/products/detail/c-k/Y78B22120FP/2176483,0.47,0.47
+SW3,1,Shift Key,,,,Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2,https://www.digikey.com/en/products/detail/c-k/Y78B22120FP/2176483,0.47,0.47
+SW4,1,Oct -,,,,Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2,https://www.digikey.com/en/products/detail/c-k/Y78B22120FP/2176483,0.47,0.47
+SW5,1,Key 1,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW6,1,Key 2,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW7,1,Key 3,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW8,1,Key 4,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW9,1,Key 5,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW10,1,Key 6,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW11,1,Key 7,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW12,1,Key 8,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW13,1,Key 9,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW14,1,Key 10,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW15,1,Key 11,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW16,1,Key 12,,,,Button_Switch_Keyboard:SW_Cherry_MX_1.00u_PCB,~,,0
+SW17,1,Filter Type,,,,Button_Switch_SMD:SW_Push_1P1T_NO_CK_KMR2,~,,0
+TH1,1,10k NTC,,,,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,https://www.digikey.com/en/products/detail/vishay-beyschlag-draloric-bc-components/NTCLE100E3103JB0/769411,0.47,0.47
+U1,1,ESP32-S3-DevKitC,,,,PCM_Espressif:ESP32-S3-DevKitC,https://www.amazon.com/dp/B0CKXJLP4B,6,6
+U2,1,PCM5102A,,,,Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm,https://www.digikey.com/en/products/detail/texas-instruments/PCM5102APWR/3727211,2.99,2.99
+U3,1,MCP73871,,,,Package_DFN_QFN:QFN-20-1EP_4x4mm_P0.5mm_EP2.5x2.5mm,https://www.digikey.com/en/products/detail/microchip-technology/MCP73871T-1AAI-ML/7928124,2.01,2.01
+U4,1,6N138,,,,Package_DIP:DIP-8_W7.62mm,https://www.digikey.com/en/products/detail/liteon/6N138/1969179,0.45,0.45
+U5,1,MCP23017_SO,,,,Package_SO:SOIC-28W_7.5x17.9mm_P1.27mm,https://www.digikey.com/en/products/detail/microchip-technology/MCP23017-E-SO/894271,1.35,1.35
+U6,1,MCP1700T-3302E/MB,,,,Package_TO_SOT_SMD:SOT-89-3,https://www.digikey.com/en/products/detail/microchip-technology/MCP1700T-3302E-MB/652678,0.43,0.43
+U7,1,THB001P,,,,Analog Stick:CNK_THB001P,https://www.digikey.com/en/products/detail/c-k/THB001P/11687191?s=N4IgTCBcDaIC4AsBGAGFBGEBdAvkA,2.43,2.43
+U8,1,OLED,,,,OLED:OLED 128x64,https://www.amazon.com/dp/B076PDVFQD,4,4
+Board,1,,,,,,,27.4,27.4
+,,,,,,,,,
+,,,,,,,,Total,81.06
