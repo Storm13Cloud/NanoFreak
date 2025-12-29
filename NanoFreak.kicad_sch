@@ -7222,6 +7222,16 @@
 	)
 	(wire
 		(pts
+			(xy 40.64 203.2) (xy 40.64 213.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "07deb91e-bc26-42c4-bd2c-21031c04afc7")
+	)
+	(wire
+		(pts
 			(xy 334.01 232.41) (xy 314.96 232.41)
 		)
 		(stroke
@@ -7679,16 +7689,6 @@
 			(type default)
 		)
 		(uuid "292c0ad8-1c2c-4c8f-ae28-e5bdbfacf9b8")
-	)
-	(wire
-		(pts
-			(xy 40.64 203.2) (xy 40.64 213.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29b0b0a0-ea47-42d5-9ed5-6f21e1f8c207")
 	)
 	(wire
 		(pts
@@ -8892,16 +8892,6 @@
 	)
 	(wire
 		(pts
-			(xy 39.37 205.74) (xy 41.91 205.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "86fb5d54-94f6-4239-8ed7-187c9c349479")
-	)
-	(wire
-		(pts
 			(xy 330.2 204.47) (xy 332.74 204.47)
 		)
 		(stroke
@@ -9162,6 +9152,16 @@
 	)
 	(wire
 		(pts
+			(xy 40.64 203.2) (xy 39.37 203.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9bae40c7-02d9-4439-a59e-302e9216843b")
+	)
+	(wire
+		(pts
 			(xy 382.27 95.25) (xy 382.27 104.14)
 		)
 		(stroke
@@ -9369,6 +9369,16 @@
 			(type default)
 		)
 		(uuid "a7b13502-0ca1-4e06-bcf6-b25d9d44d20f")
+	)
+	(wire
+		(pts
+			(xy 41.91 205.74) (xy 39.37 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a7b88a8f-9af7-4608-acb7-48caab58dc7c")
 	)
 	(wire
 		(pts
@@ -10179,16 +10189,6 @@
 			(type default)
 		)
 		(uuid "e5228be7-6f3c-42c0-9ff8-a8fb951691ee")
-	)
-	(wire
-		(pts
-			(xy 39.37 203.2) (xy 40.64 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e58f08fc-0441-434c-9789-8670fe8950b9")
 	)
 	(wire
 		(pts
@@ -14862,7 +14862,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Audio:AudioJack3")
-		(at 34.29 205.74 0)
+		(at 34.29 203.2 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -14871,7 +14871,7 @@
 		(fields_autoplaced yes)
 		(uuid "4e2b6d30-08ab-443e-9c74-18ab5e7798f6")
 		(property "Reference" "J2"
-			(at 32.385 196.85 0)
+			(at 32.385 194.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14879,7 +14879,7 @@
 			)
 		)
 		(property "Value" "MIDI In"
-			(at 32.385 199.39 0)
+			(at 32.385 196.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14887,7 +14887,7 @@
 			)
 		)
 		(property "Footprint" "Connector_Audio:Jack_3.5mm_CUI_SJ1-3523N_Horizontal"
-			(at 34.29 205.74 0)
+			(at 34.29 203.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14896,7 +14896,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 34.29 205.74 0)
+			(at 34.29 203.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14905,7 +14905,7 @@
 			)
 		)
 		(property "Description" "Audio Jack, 3 Poles (Stereo / TRS)"
-			(at 34.29 205.74 0)
+			(at 34.29 203.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
