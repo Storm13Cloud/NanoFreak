@@ -23,17 +23,24 @@ static char lastEnvelope[50] = "";
 unsigned long lastPrint = 0;
 unsigned long loopCounter = 0;
 
-int resonancePot = 1;
+int resonancePot = 7;
 int resonancePotValue = 0;  // Raw 0–4095
-int attackPot = 13;
+int cutoffPot = 6;
+int cutoffPotValue = 0;
+int attackPot = 1;
 int attackPotValue = 0;
-int decayPot = 12;
+int decayPot = 2;
 int decayPotValue = 0;
-int releasePot = 11;
+int sustainPot = 4;
+int sustainPotValue = 0;
+int releasePot = 5;
 int releasePotValue = 0;
 
-const int stickX = 4;
-const int stickY = 5;
+int volumePot = 8;
+int volumePotValue = 0;
+
+const int stickX = 18;
+const int stickY = 17;
 float stickXValue = 0;
 float stickYValue = 0;
 
@@ -43,10 +50,12 @@ float resonance = 0.7f;  // starting resonance
 float pitchBend = 0.0f;
 float targetPitchBend = 0.0f;
 float targetCutoff = 0.0f;
+float modCutoff = 0.0f;
 float smoothing = 0.1f;
 
 float targetAttack = 0.0f;
 float targetDecay = 0.0f;
+float targetSustain = 0.0f;
 float targetRelease = 0.0f;
 
 int osc1Type = 0;
@@ -58,9 +67,9 @@ int osc6Type = 0;
 int numOscTypes = 9;
 const char* oscTypes[] = {"OFF", "SINE", "PULSE", "SAW_DOWN", "SAW_UP", "TRIANGLE", "NOISE", "KS", "PCM"};
 
-const int pinA = 36;   // CLK
-const int pinB = 39;   // DT
-const int pinSW = 41;  // Button (optional)
+const int pinA = 41;   // CLK
+const int pinB = 16;   // DT
+const int pinSW = 42;  // Button (optional)
 
 // float prevStickYValue = 0;
 // float prevStickXValue = 0;
@@ -74,15 +83,17 @@ long totalAttack = 0;
 float samplesAttack = 8;
 long totalDecay = 0;
 float samplesDecay = 8;
+long totalSustain = 0;
+float samplesSustain = 8;
 long totalRelease = 0;
 float samplesRelease = 8;
 
 static uint8_t prevNextCode = 0;
 static uint16_t store=0;
 
-const int octUp = 2;
-const int filterType = 38;
-const int octDown = 37;
+const int octUp = 10;
+const int shiftKey = 9;
+const int octDown = 11;
 
 const int keyPins[] = {KEY1, KEY2, KEY3, KEY4, KEY5, KEY6, KEY7, KEY8, KEY9, KEY10, KEY11, KEY12};
 const int numKeys = 12;
@@ -93,6 +104,7 @@ bool lastKeyState[numKeys];
 int a = 200;
 int b = 700;
 int c = 1000;
+int d = 200;
 char envelope[50];  // Output buffer
 
 int midiNote = 50;
@@ -676,11 +688,17 @@ void drawMenu() {
       } else {
         display.printf("D: %d", b);
       }
+    } else if (currentMenu == 10 && i == 2) {
+      if (editMode && currentSelection==2) {
+        display.printf("S: [%d]", c);
+      } else {
+        display.printf("S: %d", c);
+      }
     } else if (currentMenu == 10 && i == 3) {
       if (editMode && currentSelection==3) {
-        display.printf("R: [%d]", c);
+        display.printf("R: [%d]", d);
       } else {
-        display.printf("R: %d", c);
+        display.printf("R: %d", d);
       }
     // --- Default item rendering ---
     } else {
@@ -704,9 +722,9 @@ void showMessage(const char* msg) {
 
 void setup() {
   pinMode(octUp, INPUT_PULLUP);
-  pinMode(filterType, INPUT_PULLUP);
+  pinMode(shiftKey, INPUT_PULLUP);
   pinMode(octDown, INPUT_PULLUP);
-  Wire.begin(8, 9);
+  Wire.begin(40, 39);
   // Wire.setClock(100000);
   pinMode(pinA, INPUT_PULLUP);
   pinMode(pinB, INPUT_PULLUP);
@@ -720,7 +738,7 @@ void setup() {
   display.display();
   delay(2000);
   Serial.println("AMY_Synth");
-  if (!mcp.begin_I2C(0x27)) {
+  if (!mcp.begin_I2C(0x20)) {
     Serial.println("Error.");
     while (1);
   }
@@ -736,9 +754,11 @@ void setup() {
   amy_config.features.default_synths = 1;
   // If you want MIDI over UART (5-pin or 3-pin serial MIDI)
   amy_config.midi = AMY_MIDI_IS_UART;
-  amy_config.i2s_bclk = 15;
-  amy_config.i2s_lrc = 17;
-  amy_config.i2s_dout = 10;
+  // amy_config.midi_out = 17;
+  amy_config.midi_in = 15;
+  amy_config.i2s_bclk = 35;
+  amy_config.i2s_lrc = 36;
+  amy_config.i2s_dout = 21;
   amy_start(amy_config);
   amy_live_start();
   amy_event e = amy_default_event();
@@ -762,14 +782,14 @@ const unsigned long envInterval = 250;  // 250 ms
 void loop() {
   handleEncoderMenu();
   // ~ cpu usage
-  loopCounter++;
-  if (millis() - lastPrint >= 1000) {
-    Serial.print("Loops per second: ");
-    Serial.println(loopCounter);
+  // loopCounter++;
+  // if (millis() - lastPrint >= 1000) {
+  //   Serial.print("Loops per second: ");
+  //   Serial.println(loopCounter);
 
-    loopCounter = 0;
-    lastPrint = millis();
-  }
+  //   loopCounter = 0;
+  //   lastPrint = millis();
+  // }
   //
   if (menuNeedsRedraw) {
     drawMenu();
@@ -803,9 +823,9 @@ void loop() {
   }
   amy_update();
   resonancePotValue = analogRead(resonancePot);
-  // attackPotValue = analogRead(attackPot);
-  // decayPotValue = analogRead(decayPot);
-  // releasePotValue = analogRead(releasePot);
+  resonancePotValue = 4095.0f - resonancePotValue;
+  cutoffPotValue = analogRead(cutoffPot);
+  cutoffPotValue = 4095.0f - cutoffPotValue;
 
   // --- Read and average joystick X ---
   long totalX = 0;
@@ -827,47 +847,64 @@ void loop() {
     totalAttack += analogRead(attackPot);
   }
   float newAttackValue = totalAttack / (float)samplesAttack;
-
+  newAttackValue = 4095.0f - newAttackValue;
   // --- Read and average decay pot ---
   long totalDecay = 0;
   for (int i = 0; i < samplesDecay; i++) {
     totalDecay += analogRead(decayPot);
   }
   float newDecayValue = totalDecay / (float)samplesDecay;
-
+  newDecayValue = 4095.0f - newDecayValue;
+  // --- Read and average sustain pot ---
+  long totalSustain = 0;
+  for (int i = 0; i < samplesSustain; i++) {
+    totalSustain += analogRead(sustainPot);
+  }
+  float newSustainValue = totalSustain / (float)samplesSustain;
+  newSustainValue = 4095.0f - newSustainValue;
   // --- Read and average release pot ---
   long totalRelease = 0;
   for (int i = 0; i < samplesRelease; i++) {
     totalRelease += analogRead(releasePot);
   }
   float newReleaseValue = totalRelease / (float)samplesRelease;
-
+  newReleaseValue = 4095.0f - newReleaseValue;
   // --- Exponential smoothing (low-pass filter) ---
   stickXValue = (stickXValue * 0.85f) + (newStickXValue * 0.15f);
   stickYValue = (stickYValue * 0.85f) + (newStickYValue * 0.15f);
   attackPotValue = (attackPotValue * 0.85f) + (newAttackValue * 0.15f);
   decayPotValue = (decayPotValue * 0.85f) + (newDecayValue * 0.15f);
+  sustainPotValue = (sustainPotValue * 0.85f) + (newSustainValue * 0.15f);
   releasePotValue = (releasePotValue * 0.85f) + (newReleaseValue * 0.15f);
 
   // --- Map and process controls ---
-  float targetCutoff = fmap(stickXValue, 0.0f, 4095.0f, 180.0f, 8000.0f);
+  float baseCutoff = 60.0f + (cutoffPotValue / 4095.0f) * (16000.0f - 60.0f);
+  float modCutoff  = fmap(stickXValue, 0.0f, 4095.0f, -8000.0f, 8000.0f);
+  float targetCutoff = baseCutoff + modCutoff;
+
+  if (targetCutoff < 200.0f) targetCutoff = 200.0f;
+  if (targetCutoff > 16000.0f) targetCutoff = 16000.0f;
+
   cutoff += (targetCutoff - cutoff) * 0.1f;
 
   float resonance = 0.7f + (resonancePotValue / 4095.0f) * (16.0f - 0.7f);
+
   a = (attackPotValue * 7000) / 4095 - 50;
   if (a < 0) a = 0;
   b = (decayPotValue * 7000) / 4095 - 30;
   if (b < 0) b =0;
-   c = (releasePotValue * 7000) / 4095 -30;
+  c = (sustainPotValue * 7000) / 4095 - 30;
   if (c < 0) c = 0;
+  d = (releasePotValue * 7000) / 4095 - 30;
+  if (d < 0) d = 0;
 
   snprintf(
     envelope,
     sizeof(envelope),
-    "%d,1,%d,0.5,30,0.4,%d,0",
-    a, b, c
+    "%d,1,%d,0.5,%d,0.4,%d,0",
+    a, b, c, d
   );
-  // Serial.println(envelope);
+  Serial.println(envelope);
   float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
