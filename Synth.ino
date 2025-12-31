@@ -38,6 +38,8 @@ int releasePotValue = 0;
 
 int volumePot = 8;
 int volumePotValue = 0;
+int lastVolumePot = 0;
+float volume = 1.0f;
 
 const int stickX = 18;
 const int stickY = 17;
@@ -87,6 +89,8 @@ long totalSustain = 0;
 float samplesSustain = 8;
 long totalRelease = 0;
 float samplesRelease = 8;
+long totalVolume = 0;
+float samplesVolume = 8;
 
 static uint8_t prevNextCode = 0;
 static uint16_t store=0;
@@ -99,6 +103,11 @@ const int keyPins[] = {KEY1, KEY2, KEY3, KEY4, KEY5, KEY6, KEY7, KEY8, KEY9, KEY
 const int numKeys = 12;
 bool keyState[numKeys];
 bool lastKeyState[numKeys];
+
+bool filterState = HIGH;
+bool lastFilterState = HIGH;
+int filterType = 1;
+int filterDebounce = 0;
 
 // const char* envelope = "200,1,700,0.5,200,0.4,1000,0";
 int a = 200;
@@ -742,6 +751,13 @@ void setup() {
     Serial.println("Error.");
     while (1);
   }
+  for (uint8_t pin : { LPLED, BPLED, HPLED }) {
+    mcp.pinMode(pin, OUTPUT);
+  }
+  mcp.digitalWrite(LPLED, HIGH);
+  mcp.digitalWrite(BPLED, LOW);
+  mcp.digitalWrite(HPLED, LOW);
+  mcp.pinMode(FILTERTYPE, INPUT_PULLUP);
   for (int i = 0; i < numKeys; i++) {
     mcp.pinMode(keyPins[i], INPUT_PULLUP);
     keyState[i] = mcp.digitalRead(keyPins[i]);
@@ -763,6 +779,7 @@ void setup() {
   amy_live_start();
   amy_event e = amy_default_event();
   e.synth = 1;
+  e.filter_type = 1;
   e.num_voices = 6;
   e.patch_number = 0;
   amy_add_event(&e);
@@ -795,6 +812,21 @@ void loop() {
     drawMenu();
     menuNeedsRedraw = false;
   }
+  filterState = mcp.digitalRead(FILTERTYPE);
+  if (filterState == LOW && lastFilterState == HIGH && (millis() - filterDebounce) > 10) {
+    filterDebounce = millis();
+    filterType++;
+    if (filterType > 3) filterType = 1;
+    mcp.digitalWrite(LPLED, filterType == 1);
+    mcp.digitalWrite(BPLED, filterType == 2);
+    mcp.digitalWrite(HPLED, filterType == 3);
+    amy_event e = amy_default_event();
+    e.synth = 1;
+    e.filter_type = filterType;
+    amy_add_event(&e);
+  }
+  lastFilterState = filterState;
+
   for (int i = 0; i < numKeys; i++) {
     keyState[i] = mcp.digitalRead(keyPins[i]);
     if (keyState[i] != lastKeyState[i]) {
@@ -869,6 +901,14 @@ void loop() {
   }
   float newReleaseValue = totalRelease / (float)samplesRelease;
   newReleaseValue = 4095.0f - newReleaseValue;
+  // --- Read and average volume pot ---
+  long totalVolume = 0;
+  for (int i = 0; i < samplesVolume; i++) {
+    totalVolume += analogRead(volumePot);
+  }
+  float newVolumeValue = totalVolume / (float)samplesVolume;
+  newVolumeValue = 4095.0f - newVolumeValue;
+  
   // --- Exponential smoothing (low-pass filter) ---
   stickXValue = (stickXValue * 0.85f) + (newStickXValue * 0.15f);
   stickYValue = (stickYValue * 0.85f) + (newStickYValue * 0.15f);
@@ -876,6 +916,7 @@ void loop() {
   decayPotValue = (decayPotValue * 0.85f) + (newDecayValue * 0.15f);
   sustainPotValue = (sustainPotValue * 0.85f) + (newSustainValue * 0.15f);
   releasePotValue = (releasePotValue * 0.85f) + (newReleaseValue * 0.15f);
+  volumePotValue = (volumePotValue * 0.85f) + (newVolumeValue * 0.15f);
 
   // --- Map and process controls ---
   float baseCutoff = 60.0f + (cutoffPotValue / 4095.0f) * (16000.0f - 60.0f);
@@ -888,6 +929,11 @@ void loop() {
   cutoff += (targetCutoff - cutoff) * 0.1f;
 
   float resonance = 0.7f + (resonancePotValue / 4095.0f) * (16.0f - 0.7f);
+
+  if (abs(volumePotValue - lastVolumePot) > 25) {
+    lastVolumePot = volumePotValue;
+    volume = (volumePotValue / 4095.0f) * 10.0f;
+  }
 
   a = (attackPotValue * 7000) / 4095 - 50;
   if (a < 0) a = 0;
@@ -904,7 +950,7 @@ void loop() {
     "%d,1,%d,0.5,%d,0.4,%d,0",
     a, b, c, d
   );
-  Serial.println(envelope);
+  // Serial.println(envelope);
   float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
@@ -912,8 +958,9 @@ void loop() {
   // amy_event e = amy_default_event();
   amy_event e = amy_default_event();
   e.synth = 1;             // target same osc
+  // e.filter_type = filterType; 
   e.filter_freq_coefs[0] = cutoff;
-  e.filter_type = 1; 
+  e.volume = volume;
   e.resonance = resonance; 
   e.pitch_bend = pitchBend;
   amy_add_event(&e);
