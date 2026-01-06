@@ -5579,6 +5579,182 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Switch:SW_SPDT"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "SW"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SW_SPDT"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 -7.62 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Switch, single pole double throw"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "switch single-pole double-throw spdt ON-ON"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SW_SPDT_0_1"
+				(circle
+					(center -2.032 0)
+					(radius 0.4572)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.651 0.254) (xy 1.651 2.286)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 2.54)
+					(radius 0.4572)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 -2.54)
+					(radius 0.4572)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SW_SPDT_1_1"
+				(rectangle
+					(start -3.175 3.81)
+					(end 3.175 -3.81)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 2.54 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -2.54 180)
+					(length 2.54)
+					(name "C"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "THB001P:THB001P"
 			(pin_names
 				(offset 1.016)
@@ -6793,12 +6969,6 @@
 		(uuid "313ab58f-9d77-48c3-97ca-fbafb75db3b1")
 	)
 	(junction
-		(at 129.54 60.96)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3ae82757-a2d6-4e7a-8fba-85a85e739d73")
-	)
-	(junction
 		(at 314.96 88.9)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6835,12 +7005,6 @@
 		(uuid "4a1b2225-c7a0-475d-b4ae-d0cc741864a1")
 	)
 	(junction
-		(at 229.87 149.86)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4f623194-dc04-4514-ae98-e0e9fc727e12")
-	)
-	(junction
 		(at 402.59 134.62)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6857,12 +7021,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "57960a96-decf-4b7b-ad82-509fdfa01531")
-	)
-	(junction
-		(at 157.48 60.96)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "57d597ac-f39c-4522-91c7-0a1148e61a54")
 	)
 	(junction
 		(at 402.59 124.46)
@@ -6995,6 +7153,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b64b5261-5457-4741-839e-e32abd8a196a")
+	)
+	(junction
+		(at 247.65 147.32)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b7529df5-ba89-4fd6-9aca-91c449d45993")
 	)
 	(junction
 		(at 402.59 63.5)
@@ -7392,6 +7556,16 @@
 	)
 	(wire
 		(pts
+			(xy 242.57 147.32) (xy 247.65 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "112fa168-02ce-4835-ab3c-cc3d541b7351")
+	)
+	(wire
+		(pts
 			(xy 41.91 163.83) (xy 49.53 163.83)
 		)
 		(stroke
@@ -7629,6 +7803,16 @@
 			(type default)
 		)
 		(uuid "23250492-43fa-4e68-99f0-6c91c1d33f5f")
+	)
+	(wire
+		(pts
+			(xy 224.79 149.86) (xy 232.41 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "23ae0435-b4c1-4f71-844d-be3f7052d321")
 	)
 	(wire
 		(pts
@@ -7992,16 +8176,6 @@
 	)
 	(wire
 		(pts
-			(xy 224.79 149.86) (xy 229.87 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3dd68e36-f324-4470-bc1f-1db650e13b98")
-	)
-	(wire
-		(pts
 			(xy 54.61 156.21) (xy 54.61 160.02)
 		)
 		(stroke
@@ -8129,6 +8303,16 @@
 			(type default)
 		)
 		(uuid "46c0d912-0354-482b-ba8c-e814b3def845")
+	)
+	(wire
+		(pts
+			(xy 242.57 147.32) (xy 242.57 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "476f0e20-4c5c-47e1-b594-feb01b046487")
 	)
 	(wire
 		(pts
@@ -8309,16 +8493,6 @@
 			(type default)
 		)
 		(uuid "53a26b9a-bc47-41fe-832d-40d319426a04")
-	)
-	(wire
-		(pts
-			(xy 157.48 60.96) (xy 157.48 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "53d9b5d9-14a4-466b-94fd-a34708fb4702")
 	)
 	(wire
 		(pts
@@ -8552,16 +8726,6 @@
 	)
 	(wire
 		(pts
-			(xy 157.48 57.15) (xy 157.48 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "67601748-4a94-4068-9292-2fa288c0f083")
-	)
-	(wire
-		(pts
 			(xy 43.18 151.13) (xy 45.72 151.13)
 		)
 		(stroke
@@ -8589,6 +8753,16 @@
 			(type default)
 		)
 		(uuid "6e232b6f-b08a-475c-b6c2-caf02a601445")
+	)
+	(wire
+		(pts
+			(xy 232.41 149.86) (xy 232.41 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6e520514-59d0-4c83-9b05-e29c927da3e4")
 	)
 	(wire
 		(pts
@@ -8749,16 +8923,6 @@
 			(type default)
 		)
 		(uuid "78e37a89-bd48-47a1-aaff-45441156535c")
-	)
-	(wire
-		(pts
-			(xy 129.54 60.96) (xy 129.54 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "793b9177-4654-46ef-9d85-d5d05875cce6")
 	)
 	(wire
 		(pts
@@ -8939,6 +9103,16 @@
 			(type default)
 		)
 		(uuid "8a0cc6ed-108b-4238-8b76-75882fbc3d6e")
+	)
+	(wire
+		(pts
+			(xy 127 68.58) (xy 129.54 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8a5e9192-8226-4e66-96a6-059af19c798c")
 	)
 	(wire
 		(pts
@@ -9322,7 +9496,7 @@
 	)
 	(wire
 		(pts
-			(xy 229.87 149.86) (xy 232.41 149.86)
+			(xy 247.65 147.32) (xy 250.19 147.32)
 		)
 		(stroke
 			(width 0)
@@ -9559,6 +9733,16 @@
 			(type default)
 		)
 		(uuid "b39f5d25-4588-4ea3-878d-2c45e1a1c0f2")
+	)
+	(wire
+		(pts
+			(xy 154.94 68.58) (xy 157.48 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5843272-34c0-4ce4-ae24-3bc345b02530")
 	)
 	(wire
 		(pts
@@ -9852,7 +10036,7 @@
 	)
 	(wire
 		(pts
-			(xy 240.03 157.48) (xy 240.03 149.86)
+			(xy 257.81 154.94) (xy 257.81 147.32)
 		)
 		(stroke
 			(width 0)
@@ -9989,16 +10173,6 @@
 			(type default)
 		)
 		(uuid "d581d4bb-986d-4172-845e-73f16a35fa23")
-	)
-	(wire
-		(pts
-			(xy 129.54 57.15) (xy 129.54 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d713a8cb-43ce-43e3-ad28-7cbf42003640")
 	)
 	(wire
 		(pts
@@ -11840,7 +12014,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 129.54 57.15 0)
+		(at 127 68.58 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -11849,7 +12023,7 @@
 		(fields_autoplaced yes)
 		(uuid "0360230b-d60a-422a-8ab3-7c9378bbbc0e")
 		(property "Reference" "#PWR047"
-			(at 129.54 60.96 0)
+			(at 127 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11858,7 +12032,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 129.54 52.07 0)
+			(at 127 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11866,7 +12040,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 129.54 57.15 0)
+			(at 127 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11875,7 +12049,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 129.54 57.15 0)
+			(at 127 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11884,7 +12058,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 129.54 57.15 0)
+			(at 127 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11914,7 +12088,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "048112cb-8782-4e7e-8ae0-26ce5c0a9927")
-		(property "Reference" "SW7"
+		(property "Reference" "SW14"
 			(at 393.7 35.56 0)
 			(effects
 				(font
@@ -11966,7 +12140,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW7")
+					(reference "SW14")
 					(unit 1)
 				)
 			)
@@ -11991,7 +12165,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "220"
+		(property "Value" "10k"
 			(at 364.49 132.0799 0)
 			(effects
 				(font
@@ -12052,7 +12226,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "09a041ef-a4dc-4250-bc2e-979bd88b1455")
-		(property "Reference" "SW12"
+		(property "Reference" "SW9"
 			(at 393.7 96.52 0)
 			(effects
 				(font
@@ -12104,7 +12278,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW12")
+					(reference "SW9")
 					(unit 1)
 				)
 			)
@@ -12187,7 +12361,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0a20dc80-5d49-49f4-bc4b-08c208fe9211")
-		(property "Reference" "SW16"
+		(property "Reference" "SW6"
 			(at 393.7 137.16 0)
 			(effects
 				(font
@@ -12239,7 +12413,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW16")
+					(reference "SW6")
 					(unit 1)
 				)
 			)
@@ -13055,7 +13229,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1ab88953-ff92-4dce-8802-031418879adc")
-		(property "Reference" "SW15"
+		(property "Reference" "SW8"
 			(at 393.7 127 0)
 			(effects
 				(font
@@ -13107,7 +13281,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW15")
+					(reference "SW8")
 					(unit 1)
 				)
 			)
@@ -13701,7 +13875,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical"
+		(property "Footprint" "PotentiometerTHT:Potentiometer"
 			(at 154.94 38.1 0)
 			(effects
 				(font
@@ -13910,7 +14084,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "348e17e1-a7e6-4dcf-a21e-15b43a8f699c")
-		(property "Reference" "SW6"
+		(property "Reference" "SW11"
 			(at 393.7 25.4 0)
 			(effects
 				(font
@@ -13962,7 +14136,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW6")
+					(reference "SW11")
 					(unit 1)
 				)
 			)
@@ -14718,7 +14892,7 @@
 	)
 	(symbol
 		(lib_id "Device:Battery_Cell")
-		(at 237.49 149.86 90)
+		(at 255.27 147.32 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -14727,7 +14901,7 @@
 		(fields_autoplaced yes)
 		(uuid "462d62c7-7304-491b-b1c7-4e20d430c1f3")
 		(property "Reference" "BT1"
-			(at 235.6485 142.24 90)
+			(at 253.4285 139.7 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14735,7 +14909,7 @@
 			)
 		)
 		(property "Value" "Single Cell LiPo"
-			(at 235.6485 144.78 90)
+			(at 253.4285 142.24 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14743,7 +14917,7 @@
 			)
 		)
 		(property "Footprint" "Battery:BatteryHolder_Keystone_1042_1x18650"
-			(at 235.966 149.86 90)
+			(at 253.746 147.32 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14752,7 +14926,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 235.966 149.86 90)
+			(at 253.746 147.32 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14761,7 +14935,7 @@
 			)
 		)
 		(property "Description" "Single-cell battery"
-			(at 237.49 149.86 0)
+			(at 255.27 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14999,72 +15173,6 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 121.92 60.96 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "524aa057-533b-41a5-8464-6c7905aeac59")
-		(property "Reference" "#PWR061"
-			(at 121.92 67.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 121.92 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 121.92 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 121.92 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 121.92 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9e1a0649-4573-4fdf-bfd4-3ae89554e468")
-		)
-		(instances
-			(project "NanoFreak"
-				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "#PWR061")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
 		(at 356.87 54.61 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -15155,7 +15263,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical"
+		(property "Footprint" "PotentiometerTHT:Potentiometer"
 			(at 166.37 38.1 0)
 			(effects
 				(font
@@ -15415,7 +15523,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical"
+		(property "Footprint" "PotentiometerTHT:Potentiometer"
 			(at 177.8 38.1 0)
 			(effects
 				(font
@@ -15611,7 +15719,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "220"
+		(property "Value" "10k"
 			(at 367.03 111.7599 0)
 			(effects
 				(font
@@ -15956,7 +16064,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5eaeb5fd-af4a-4757-92d6-19cd95cdbab3")
-		(property "Reference" "SW11"
+		(property "Reference" "SW10"
 			(at 393.7 86.36 0)
 			(effects
 				(font
@@ -16008,7 +16116,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW11")
+					(reference "SW10")
 					(unit 1)
 				)
 			)
@@ -16433,7 +16541,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "69b75836-1598-4ce3-bfcc-0f79dbee8499")
-		(property "Reference" "SW8"
+		(property "Reference" "SW13"
 			(at 393.7 45.72 0)
 			(effects
 				(font
@@ -16485,7 +16593,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW8")
+					(reference "SW13")
 					(unit 1)
 				)
 			)
@@ -16624,7 +16732,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 240.03 157.48 0)
+		(at 257.81 154.94 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -16632,7 +16740,7 @@
 		(dnp no)
 		(uuid "7628d072-7f05-49e1-a29e-e20b4b48bedd")
 		(property "Reference" "#PWR036"
-			(at 240.03 163.83 0)
+			(at 257.81 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16641,7 +16749,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 240.03 163.0681 0)
+			(at 257.81 160.5281 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16649,7 +16757,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 240.03 157.48 0)
+			(at 257.81 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16658,7 +16766,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 240.03 157.48 0)
+			(at 257.81 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16667,7 +16775,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 240.03 157.48 0)
+			(at 257.81 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17949,7 +18057,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+3V3"
+		(property "Value" "+3.3V"
 			(at 71.882 199.136 0)
 			(effects
 				(font
@@ -17991,141 +18099,6 @@
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
 					(reference "#PWR023")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 149.86 60.96 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "9f4bfee7-b26c-4de6-b5b7-d2a2a9721f7c")
-		(property "Reference" "#PWR062"
-			(at 149.86 67.31 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 149.86 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 149.86 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 149.86 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 149.86 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "902245d0-ba36-445e-acd0-41bb59fd1f20")
-		)
-		(instances
-			(project "NanoFreak"
-				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "#PWR062")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 153.67 60.96 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a1b92f5d-98c5-41b4-96b7-3a803bd52a93")
-		(property "Reference" "C17"
-			(at 154.686 55.118 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "0.1µf"
-			(at 154.686 57.15 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
-			(at 157.48 59.9948 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 153.67 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 153.67 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d563cf88-7a69-4726-beb2-2268651ff6c0")
-		)
-		(pin "2"
-			(uuid "e406219d-7c9d-49f7-be1d-84e07a259973")
-		)
-		(instances
-			(project "NanoFreak"
-				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "C17")
 					(unit 1)
 				)
 			)
@@ -18342,7 +18315,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a793fd6f-1f1a-4193-a99a-5f2f06df4092")
-		(property "Reference" "SW13"
+		(property "Reference" "SW7"
 			(at 393.7 106.68 0)
 			(effects
 				(font
@@ -18394,7 +18367,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW13")
+					(reference "SW7")
 					(unit 1)
 				)
 			)
@@ -18410,7 +18383,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a8846c6f-534b-4a5f-9ef9-70c299b0ed9b")
-		(property "Reference" "SW5"
+		(property "Reference" "SW12"
 			(at 393.7 15.24 0)
 			(effects
 				(font
@@ -18462,7 +18435,7 @@
 		(instances
 			(project ""
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW5")
+					(reference "SW12")
 					(unit 1)
 				)
 			)
@@ -18544,7 +18517,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ac89e1f2-f9b3-4b27-b489-e300c15b988c")
-		(property "Reference" "SW10"
+		(property "Reference" "SW15"
 			(at 393.7 66.04 0)
 			(effects
 				(font
@@ -18596,7 +18569,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW10")
+					(reference "SW15")
 					(unit 1)
 				)
 			)
@@ -19028,7 +19001,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "220"
+		(property "Value" "10k"
 			(at 365.76 121.9199 0)
 			(effects
 				(font
@@ -19211,6 +19184,77 @@
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
 					(reference "R6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_SPDT")
+		(at 237.49 149.86 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bf61567c-0459-4110-a51f-f21cb3dfc4be")
+		(property "Reference" "SW18"
+			(at 237.49 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SW_SPDT"
+			(at 237.49 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_SMD:SW_SPDT_PCM12"
+			(at 237.49 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 237.49 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Switch, single pole double throw"
+			(at 237.49 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "dbaf416b-f531-473d-8ac1-c66e56254873")
+		)
+		(pin "3"
+			(uuid "4e47fbf3-62b6-4db7-9b6d-d27e40da57b0")
+		)
+		(pin "1"
+			(uuid "8c0f0636-c5f8-4828-aa70-47f4c0b9e5a5")
+		)
+		(instances
+			(project ""
+				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
+					(reference "SW18")
 					(unit 1)
 				)
 			)
@@ -19771,7 +19815,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical"
+		(property "Footprint" "PotentiometerTHT:Potentiometer"
 			(at 143.51 38.1 0)
 			(effects
 				(font
@@ -19811,75 +19855,6 @@
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
 					(reference "RV3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 125.73 60.96 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "cabfd701-2759-40d0-b1f7-566fe432a1ef")
-		(property "Reference" "C16"
-			(at 126.746 55.118 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "0.1µf"
-			(at 126.746 57.15 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
-			(at 129.54 59.9948 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 125.73 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 125.73 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1a51e31a-c42e-478d-ae7e-0a23bb6ca4a5")
-		)
-		(pin "2"
-			(uuid "8aee32f7-a040-4ee7-8245-d64d51858074")
-		)
-		(instances
-			(project "NanoFreak"
-				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "C16")
 					(unit 1)
 				)
 			)
@@ -20085,7 +20060,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 157.48 57.15 0)
+		(at 154.94 68.58 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -20094,7 +20069,7 @@
 		(fields_autoplaced yes)
 		(uuid "ceac71eb-c7d3-470d-90cf-7c19807a12aa")
 		(property "Reference" "#PWR048"
-			(at 157.48 60.96 0)
+			(at 154.94 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20103,7 +20078,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 157.48 52.07 0)
+			(at 154.94 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20111,7 +20086,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 157.48 57.15 0)
+			(at 154.94 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20120,7 +20095,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 157.48 57.15 0)
+			(at 154.94 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20129,7 +20104,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 157.48 57.15 0)
+			(at 154.94 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20306,7 +20281,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical"
+		(property "Footprint" "PotentiometerTHT:Potentiometer"
 			(at 132.08 38.1 0)
 			(effects
 				(font
@@ -20377,7 +20352,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical"
+		(property "Footprint" "PotentiometerTHT:Potentiometer"
 			(at 120.65 38.1 0)
 			(effects
 				(font
@@ -20440,7 +20415,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+3V3"
+		(property "Value" "+3.3V"
 			(at 176.022 177.546 0)
 			(effects
 				(font
@@ -20548,72 +20523,6 @@
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
 					(reference "#PWR017")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3.3V")
-		(at 375.92 223.52 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d8e80f83-d16f-46a5-b753-51c159e9f1e8")
-		(property "Reference" "#PWR031"
-			(at 375.92 227.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.3V"
-			(at 375.92 218.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 375.92 223.52 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 375.92 223.52 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 375.92 223.52 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "23031c7c-fc76-4808-8a21-ce0c2a1db674")
-		)
-		(instances
-			(project "NanoFreak"
-				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "#PWR031")
 					(unit 1)
 				)
 			)
@@ -20977,7 +20886,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Vishay_248GJ-249GJ_Single_Vertical"
+		(property "Footprint" "PotentiometerTHT:Potentiometer"
 			(at 189.23 38.1 0)
 			(effects
 				(font
@@ -21508,7 +21417,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ef73dd0c-590e-462e-8350-fe70ce66f6cd")
-		(property "Reference" "SW9"
+		(property "Reference" "SW16"
 			(at 393.7 55.88 0)
 			(effects
 				(font
@@ -21560,7 +21469,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW9")
+					(reference "SW16")
 					(unit 1)
 				)
 			)
@@ -21576,7 +21485,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f095b2c4-ffdb-4509-bc81-48d012d9e4ac")
-		(property "Reference" "SW14"
+		(property "Reference" "SW5"
 			(at 393.7 116.84 0)
 			(effects
 				(font
@@ -21628,7 +21537,7 @@
 		(instances
 			(project "NanoFreak"
 				(path "/b555a050-c6a3-433f-8557-ace16795c37f"
-					(reference "SW14")
+					(reference "SW5")
 					(unit 1)
 				)
 			)
@@ -21915,7 +21824,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 229.87 153.67 0)
+		(at 247.65 151.13 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -21923,7 +21832,7 @@
 		(dnp no)
 		(uuid "f9644005-2c97-4b45-89fb-492e6751af49")
 		(property "Reference" "C11"
-			(at 233.68 153.924 0)
+			(at 251.46 151.384 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21932,7 +21841,7 @@
 			)
 		)
 		(property "Value" "4.7µf"
-			(at 233.68 156.464 0)
+			(at 251.46 153.924 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21941,7 +21850,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
-			(at 230.8352 157.48 0)
+			(at 248.6152 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21950,7 +21859,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 229.87 153.67 0)
+			(at 247.65 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21959,7 +21868,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 229.87 153.67 0)
+			(at 247.65 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22049,7 +21958,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 229.87 157.48 0)
+		(at 247.65 154.94 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -22057,7 +21966,7 @@
 		(dnp no)
 		(uuid "fadebe23-98eb-4416-88e4-7ab503255b42")
 		(property "Reference" "#PWR037"
-			(at 229.87 163.83 0)
+			(at 247.65 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22066,7 +21975,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 229.87 163.0681 0)
+			(at 247.65 160.5281 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22074,7 +21983,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 229.87 157.48 0)
+			(at 247.65 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22083,7 +21992,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 229.87 157.48 0)
+			(at 247.65 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22092,7 +22001,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 229.87 157.48 0)
+			(at 247.65 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
