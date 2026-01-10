@@ -227,7 +227,7 @@ void updateUserPatch() {
   e.patch_number = patchNumber;
   e.osc = 0;
   e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
-  strcpy(e.bp0, envelope);
+  // strcpy(e.bp0, envelope);
   amy_add_event(&e);
   int lastChained = -1;
   for (int i = 1; i < 5; i++) {
@@ -251,31 +251,31 @@ void updateUserPatch() {
   e.patch_number = patchNumber;
   e.osc = 1;
   e.wave = (osc2Type == 0) ? 16 : (osc2Type - 1);
-  strcpy(e.bp0, envelope);
+  // strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 2;
   e.wave = (osc3Type == 0) ? 16 : (osc3Type - 1);
-  strcpy(e.bp0, envelope);
+  // strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 3;
   e.wave = (osc4Type == 0) ? 16 : (osc4Type - 1);
-  strcpy(e.bp0, envelope);
+  // strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 4;
   e.wave = (osc5Type == 0) ? 16 : (osc5Type - 1);
-  strcpy(e.bp0, envelope);
+  // strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.patch_number = patchNumber;
   e.osc = 5;
   e.wave = (osc6Type == 0) ? 16 : (osc6Type - 1);
-  strcpy(e.bp0, envelope);
+  // strcpy(e.bp0, envelope);
   amy_add_event(&e);
   e = amy_default_event();
   e.synth = 1;
@@ -775,8 +775,9 @@ void setup() {
   amy_config.i2s_bclk = 35;
   amy_config.i2s_lrc = 36;
   amy_config.i2s_dout = 21;
+  amy_config.audio = AMY_AUDIO_IS_I2S;
   amy_start(amy_config);
-  amy_live_start();
+  // amy_live_start();
   amy_event e = amy_default_event();
   e.synth = 1;
   e.filter_type = 1;
@@ -836,19 +837,19 @@ void loop() {
         lastKeyState[i] = keyState[i];
         if (keyState[i] == LOW) {
           playNote(i);
-          Serial.print("Key ");
-          Serial.print(i);
-          Serial.print(" pressed");
-          Serial.println("keystate");
-          Serial.print(keyState[i]);
+          // Serial.print("Key ");
+          // Serial.print(i);
+          // Serial.print(" pressed");
+          // Serial.println("keystate");
+          // Serial.print(keyState[i]);
         }
         else {
           noteOff(i);
-          Serial.print("Key ");
-          Serial.print(i);
-          Serial.print(" released");
-          Serial.println("keystate");
-          Serial.print(keyState[i]);
+          // Serial.print("Key ");
+          // Serial.print(i);
+          // Serial.print(" released");
+          // Serial.println("keystate");
+          // Serial.print(keyState[i]);
         }
       }
     }
@@ -951,14 +952,18 @@ void loop() {
     a, b, c, d
   );
   // Serial.println(envelope);
+  Serial.println(cutoff);
   float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
+  // if (patchNumber > 300) {
+  //   updateEnvelope();
+  // }
   updateEnvelope();
   // amy_event e = amy_default_event();
   amy_event e = amy_default_event();
   e.synth = 1;             // target same osc
-  // e.filter_type = filterType; 
+  e.filter_type = filterType; 
   e.filter_freq_coefs[0] = cutoff;
   e.volume = volume;
   e.resonance = resonance; 
