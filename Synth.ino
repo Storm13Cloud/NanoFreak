@@ -98,6 +98,9 @@ static uint16_t store=0;
 const int octUp = 10;
 const int shiftKey = 9;
 const int octDown = 11;
+bool lastOctDownState = HIGH;
+bool lastOctUpState   = HIGH;
+int baseNote = 60;
 
 const int keyPins[] = {KEY1, KEY2, KEY3, KEY4, KEY5, KEY6, KEY7, KEY8, KEY9, KEY10, KEY11, KEY12};
 const int numKeys = 12;
@@ -116,7 +119,7 @@ int c = 1000;
 int d = 200;
 char envelope[50];  // Output buffer
 
-int midiNote = 50;
+int midiNote = 60;
 int currentNote = 0;
 
 // Debounce timing
@@ -200,7 +203,7 @@ int8_t read_rotary() {
 }
 
 void playNote(int i) {
-  int baseNote = 50;
+  // int baseNote = 60;
   amy_event e = amy_default_event();
   e.synth = 1;
   e.midi_note = baseNote + i;
@@ -209,7 +212,7 @@ void playNote(int i) {
 }
 
 void noteOff(int i) {
-  int baseNote = 50;
+  // int baseNote = 60;
   amy_event e = amy_default_event();
   e.synth = 1;
   e.midi_note = baseNote + i;
@@ -798,6 +801,23 @@ unsigned long lastEnvUpdate = 0;
 const unsigned long envInterval = 250;  // 250 ms
 
 void loop() {
+  bool octDownState = digitalRead(octDown);
+  bool octUpState   = digitalRead(octUp);
+
+  // Octave down (falling edge)
+  if (lastOctDownState == HIGH && octDownState == LOW) {
+    baseNote -= 12;
+    if (baseNote < 12) baseNote = 12;
+  }
+
+  // Octave up (falling edge)
+  if (lastOctUpState == HIGH && octUpState == LOW) {
+    baseNote += 12;
+    if (baseNote > 120) baseNote = 120;
+  }
+
+  lastOctDownState = octDownState;
+  lastOctUpState   = octUpState;
   handleEncoderMenu();
   // ~ cpu usage
   // loopCounter++;
