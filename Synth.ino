@@ -93,7 +93,7 @@ long totalVolume = 0;
 float samplesVolume = 8;
 
 static uint8_t prevNextCode = 0;
-static uint16_t store=0;
+static int16_t store=0;
 
 const int octUp = 10;
 const int shiftKey = 9;
@@ -183,22 +183,39 @@ int numMenus = sizeof(menus) / sizeof(Menu);
 
 // A valid CW or CCW move returns 1, invalid returns 0.
 int8_t read_rotary() {
-  static int8_t rot_enc_table[] = {0, 1, 1, 0, 1, 0, 0, 1, 
-                                   1, 0, 0, 1, 0, 1, 1, 0};
+  uint8_t state = 0;
 
-  prevNextCode <<= 2;
-  if (digitalRead(pinB)) prevNextCode |= 0x02;
-  if (digitalRead(pinA)) prevNextCode |= 0x01;
-  prevNextCode &= 0x0f;
+  // Build current A/B state
+  if (digitalRead(pinA)) state |= 0x02;
+  if (digitalRead(pinB)) state |= 0x01;
 
-  // If valid then store as 16 bit data.
-  if (rot_enc_table[prevNextCode]) {
-    store <<= 4;
-    store |= prevNextCode;
-
-    if ((store & 0xff) == 0x2b) return -1;
-    if ((store & 0xff) == 0x17) return 1;
+  // Clockwise transitions
+  if ((prevNextCode == 0b00 && state == 0b01) ||
+      (prevNextCode == 0b01 && state == 0b11) ||
+      (prevNextCode == 0b11 && state == 0b10) ||
+      (prevNextCode == 0b10 && state == 0b00)) {
+    store++;
   }
+  // Counter-clockwise transitions
+  else if ((prevNextCode == 0b00 && state == 0b10) ||
+           (prevNextCode == 0b10 && state == 0b11) ||
+           (prevNextCode == 0b11 && state == 0b01) ||
+           (prevNextCode == 0b01 && state == 0b00)) {
+    store--;
+  }
+
+  prevNextCode = state;
+
+  // KY-040: 4 valid transitions per detent
+  if (store >= 2) {
+    store = 0;
+    return 1;
+  }
+  else if (store <= -2) {
+    store = 0;
+    return -1;
+  }
+
   return 0;
 }
 
@@ -989,5 +1006,6 @@ void loop() {
   e.resonance = resonance; 
   e.pitch_bend = pitchBend;
   amy_add_event(&e);
+
 
 }
