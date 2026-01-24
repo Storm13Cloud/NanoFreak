@@ -249,6 +249,15 @@ void updateUserPatch() {
   e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
   // strcpy(e.bp0, envelope);
   amy_add_event(&e);
+  if (patchNumber < 300) {              //if preset patch, make sure adsr is usable
+    for (int i = 0; i < 3; i++) {
+      e = amy_default_event();
+      e.osc = i;
+      e.amp_coefs[COEF_EG0] = 1;
+      e.amp_coefs[COEF_EG1] = 0;
+      amy_add_event(&e);
+    }
+  }
   int lastChained = -1;
   for (int i = 1; i < 5; i++) {
     if (osc0Chains[i]) {
@@ -310,13 +319,24 @@ void updateEnvelope() {
   e.osc = 0;
   strcpy(e.bp0, envelope);
   amy_add_event(&e);
-  for (int i = 1; i < 5; i++) {
-    if (osc0Chains[i]) {
+  if (patchNumber < 300) {
+    for (int i = 1; i < 5; i++) {
       e = amy_default_event();
       e.synth = 1;
       e.osc = i;
       strcpy(e.bp0, envelope);
       amy_add_event(&e);
+    }
+  }
+  else {
+    for (int i = 1; i < 5; i++) {
+      if (osc0Chains[i]) {
+        e = amy_default_event();
+        e.synth = 1;
+        e.osc = i;
+        strcpy(e.bp0, envelope);
+        amy_add_event(&e);
+      }
     }
   }
 }
@@ -1009,3 +1029,4 @@ void loop() {
 
 
 }
+
