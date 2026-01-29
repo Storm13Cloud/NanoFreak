@@ -11,6 +11,9 @@ void selectOscillator(uint8_t newOsc) {
 
   //reset pickups for the new osc
   for (int i = 0; i < NUM_POTS; i++) {
-    pots[i].reset(analogRead(potPin[i]));
+    int raw = analogRead(potPin[i]);
+    timePickup[i].reset(raw);
+    levelPickup[i].reset(raw);
   }
+
 }
