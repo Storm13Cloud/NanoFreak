@@ -26,6 +26,9 @@ static char lastEnvelope[50] = "";
 unsigned long lastPrint = 0;
 unsigned long loopCounter = 0;
 
+SoftPickup timePickup[NUM_POTS];
+SoftPickup levelPickup[NUM_POTS];
+
 bool shiftHeld = false;
 int resonancePot = 7;
 int resonancePotValue = 0;  // Raw 0–4095
@@ -1086,4 +1089,5 @@ void loop() {
   e.resonance = resonance; 
   e.pitch_bend = pitchBend;
   amy_add_event(&e);
+
 }
