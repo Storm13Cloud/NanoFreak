@@ -652,16 +652,16 @@ void updateEnvelopeFromPots(bool shiftHeld) {
 
     for (int i = 0; i < NUM_POTS; i++) {
         int raw = analogRead(potPin[i]);
-
-        if (!pots[i].update(raw))
-            continue;
-
         float norm = raw / 1023.0f; // normalize to 0–1
 
-        if (shiftHeld)
+        if (shiftHeld) {
+            if (!levelPickup[i].update(raw)) continue;
             e.level[i] = norm;
-        else
-            e.time[i] = norm * 1000.0f; // example: 0–1000 ms
+        }
+        else {
+            if (!timePickup[i].update(raw)) continue;
+            e.time[i] = norm * 1000.0f; // or whatever scaling
+        }
     }
     printEnvelope(activeOsc);
 }
@@ -1091,3 +1091,4 @@ void loop() {
   amy_add_event(&e);
 
 }
+
