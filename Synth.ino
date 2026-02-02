@@ -19,9 +19,6 @@ static unsigned long lastEnvelopeUpdate = 0;
 const unsigned long envelopeInterval = 200; // ms
 static char lastEnvelope[50] = "";
 
-//cpu usage
-unsigned long lastPrint = 0;
-unsigned long loopCounter = 0;
 
 int resonancePot = 7;
 int resonancePotValue = 0;  // Raw 0–4095
@@ -69,8 +66,8 @@ int osc6Type = 0;
 int numOscTypes = 9;
 const char* oscTypes[] = {"OFF", "SINE", "PULSE", "SAW_DOWN", "SAW_UP", "TRIANGLE", "NOISE", "KS", "PCM"};
 
-const int pinA = 41;   // CLK
-const int pinB = 16;   // DT
+const int pinA = 41;   
+const int pinB = 16;   
 const int pinSW = 42;  // Button (optional)
 
 // float prevStickYValue = 0;
@@ -252,6 +249,7 @@ void updateUserPatch() {
   if (patchNumber < 300) {              //if preset patch, make sure adsr is usable
     for (int i = 0; i < 3; i++) {
       e = amy_default_event();
+      e.patch_number = patchNumber;
       e.osc = i;
       e.amp_coefs[COEF_EG0] = 1;
       e.amp_coefs[COEF_EG1] = 0;
@@ -856,16 +854,7 @@ void loop() {
   lastOctDownState = octDownState;
   lastOctUpState   = octUpState;
   handleEncoderMenu();
-  // ~ cpu usage
-  // loopCounter++;
-  // if (millis() - lastPrint >= 1000) {
-  //   Serial.print("Loops per second: ");
-  //   Serial.println(loopCounter);
 
-  //   loopCounter = 0;
-  //   lastPrint = millis();
-  // }
-  //
   if (menuNeedsRedraw) {
     drawMenu();
     menuNeedsRedraw = false;
@@ -913,9 +902,7 @@ void loop() {
   }
   amy_update();
   resonancePotValue = analogRead(resonancePot);
-  resonancePotValue = 4095.0f - resonancePotValue;
   cutoffPotValue = analogRead(cutoffPot);
-  cutoffPotValue = 4095.0f - cutoffPotValue;
 
   // --- Read and average joystick X ---
   long totalX = 0;
@@ -937,39 +924,34 @@ void loop() {
     totalAttack += analogRead(attackPot);
   }
   float newAttackValue = totalAttack / (float)samplesAttack;
-  newAttackValue = 4095.0f - newAttackValue;
   // --- Read and average decay pot ---
   long totalDecay = 0;
   for (int i = 0; i < samplesDecay; i++) {
     totalDecay += analogRead(decayPot);
   }
   float newDecayValue = totalDecay / (float)samplesDecay;
-  newDecayValue = 4095.0f - newDecayValue;
   // --- Read and average sustain pot ---
   long totalSustain = 0;
   for (int i = 0; i < samplesSustain; i++) {
     totalSustain += analogRead(sustainPot);
   }
   float newSustainValue = totalSustain / (float)samplesSustain;
-  newSustainValue = 4095.0f - newSustainValue;
   // --- Read and average release pot ---
   long totalRelease = 0;
   for (int i = 0; i < samplesRelease; i++) {
     totalRelease += analogRead(releasePot);
   }
   float newReleaseValue = totalRelease / (float)samplesRelease;
-  newReleaseValue = 4095.0f - newReleaseValue;
   // --- Read and average volume pot ---
   long totalVolume = 0;
   for (int i = 0; i < samplesVolume; i++) {
     totalVolume += analogRead(volumePot);
   }
   float newVolumeValue = totalVolume / (float)samplesVolume;
-  newVolumeValue = 4095.0f - newVolumeValue;
   
   // --- Exponential smoothing (low-pass filter) ---
-  stickXValue = (stickXValue * 0.85f) + (newStickXValue * 0.15f);
-  stickYValue = (stickYValue * 0.85f) + (newStickYValue * 0.15f);
+  stickXValue = (stickXValue * 0.50f) + (newStickXValue * 0.50f);
+  stickYValue = (stickYValue * 0.50f) + (newStickYValue * 0.50f);
   attackPotValue = (attackPotValue * 0.85f) + (newAttackValue * 0.15f);
   decayPotValue = (decayPotValue * 0.85f) + (newDecayValue * 0.15f);
   sustainPotValue = (sustainPotValue * 0.85f) + (newSustainValue * 0.15f);
@@ -986,7 +968,14 @@ void loop() {
 
   cutoff += (targetCutoff - cutoff) * 0.1f;
 
-  float resonance = 0.7f + (resonancePotValue / 4095.0f) * (16.0f - 0.7f);
+  float baseResonance = 0.7f + (resonancePotValue / 4095.0f) * (16.0f - 0.7f);
+  float modResonance = fmap(stickYValue, 0.0f, 4095.0f, 8.0f, -8.0f);
+  float targetResonance = baseResonance + modResonance;
+
+  if (targetResonance < 0.7) targetResonance = 0.7f;
+  if (targetResonance > 16.0f) targetResonance = 16.0f;
+
+  resonance += (targetResonance - resonance) * 0.1f;
 
   if (abs(volumePotValue - lastVolumePot) > 25) {
     lastVolumePot = volumePotValue;
@@ -1009,24 +998,18 @@ void loop() {
     a, b, c, d
   );
   // Serial.println(envelope);
-  Serial.println(cutoff);
-  float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
-  pitchBend += (targetPitchBend - pitchBend) * smoothing;
+  // Serial.println(cutoff);
+  // float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
+  // pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
-  // if (patchNumber > 300) {
-  //   updateEnvelope();
-  // }
   updateEnvelope();
-  // amy_event e = amy_default_event();
   amy_event e = amy_default_event();
   e.synth = 1;             // target same osc
   e.filter_type = filterType; 
   e.filter_freq_coefs[0] = cutoff;
   e.volume = volume;
   e.resonance = resonance; 
-  e.pitch_bend = pitchBend;
+  // e.pitch_bend = pitchBend;
   amy_add_event(&e);
 
-
 }
-
