@@ -241,15 +241,20 @@ void updateUserPatch() {
   e.reset_osc = RESET_PATCH;
   amy_add_event(&e);
   e = amy_default_event();
+  e.synth = 1;
+  e.num_voices = 6;
   e.patch_number = patchNumber;
-  e.osc = 0;
-  e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
+  amy_add_event(&e);
+  // e = amy_default_event();
+  // e.synth = 1;
+  // e.osc = 0;
+  // e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
   // strcpy(e.bp0, envelope);
   amy_add_event(&e);
   if (patchNumber < 300) {              //if preset patch, make sure adsr is usable
     for (int i = 0; i < 3; i++) {
       e = amy_default_event();
-      e.patch_number = patchNumber;
+      e.synth = 1;
       e.osc = i;
       e.amp_coefs[COEF_EG0] = 1;
       e.amp_coefs[COEF_EG1] = 0;
@@ -260,7 +265,7 @@ void updateUserPatch() {
   for (int i = 1; i < 5; i++) {
     if (osc0Chains[i]) {
       e = amy_default_event();
-      e.patch_number = patchNumber;
+      e.synth = 1;
       if (lastChained != -1) {
         e.osc = lastChained;
         e.chained_osc = i;
@@ -274,41 +279,36 @@ void updateUserPatch() {
       lastChained = i;
     }
   }
-  e = amy_default_event();
-  e.patch_number = patchNumber;
-  e.osc = 1;
-  e.wave = (osc2Type == 0) ? 16 : (osc2Type - 1);
-  // strcpy(e.bp0, envelope);
-  amy_add_event(&e);
-  e = amy_default_event();
-  e.patch_number = patchNumber;
-  e.osc = 2;
-  e.wave = (osc3Type == 0) ? 16 : (osc3Type - 1);
-  // strcpy(e.bp0, envelope);
-  amy_add_event(&e);
-  e = amy_default_event();
-  e.patch_number = patchNumber;
-  e.osc = 3;
-  e.wave = (osc4Type == 0) ? 16 : (osc4Type - 1);
-  // strcpy(e.bp0, envelope);
-  amy_add_event(&e);
-  e = amy_default_event();
-  e.patch_number = patchNumber;
-  e.osc = 4;
-  e.wave = (osc5Type == 0) ? 16 : (osc5Type - 1);
-  // strcpy(e.bp0, envelope);
-  amy_add_event(&e);
-  e = amy_default_event();
-  e.patch_number = patchNumber;
-  e.osc = 5;
-  e.wave = (osc6Type == 0) ? 16 : (osc6Type - 1);
-  // strcpy(e.bp0, envelope);
-  amy_add_event(&e);
-  e = amy_default_event();
-  e.synth = 1;
-  e.num_voices = 6;
-  e.patch_number = patchNumber;
-  amy_add_event(&e);
+  // e = amy_default_event();
+  // e.synth = 1;
+  // e.osc = 1;
+  // e.wave = (osc2Type == 0) ? 16 : (osc2Type - 1);
+  // // strcpy(e.bp0, envelope);
+  // amy_add_event(&e);
+  // e = amy_default_event();
+  // e.synth = 1;
+  // e.osc = 2;
+  // e.wave = (osc3Type == 0) ? 16 : (osc3Type - 1);
+  // // strcpy(e.bp0, envelope);
+  // amy_add_event(&e);
+  // e = amy_default_event();
+  // e.synth = 1;
+  // e.osc = 3;
+  // e.wave = (osc4Type == 0) ? 16 : (osc4Type - 1);
+  // // strcpy(e.bp0, envelope);
+  // amy_add_event(&e);
+  // e = amy_default_event();
+  // e.synth = 1;
+  // e.osc = 4;
+  // e.wave = (osc5Type == 0) ? 16 : (osc5Type - 1);
+  // // strcpy(e.bp0, envelope);
+  // amy_add_event(&e);
+  // e = amy_default_event();
+  // e.synth = 1;
+  // e.osc = 5;
+  // e.wave = (osc6Type == 0) ? 16 : (osc6Type - 1);
+  // // strcpy(e.bp0, envelope);
+  // amy_add_event(&e);
 }
 
 void updateEnvelope() {
