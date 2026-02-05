@@ -17,7 +17,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 static unsigned long lastEnvelopeUpdate = 0;
 const unsigned long envelopeInterval = 200; // ms
-static char lastEnvelope[50] = "";
+static char lastEnvelope[128] = "";
 
 
 int resonancePot = 7;
@@ -37,6 +37,20 @@ int volumePot = 8;
 int volumePotValue = 0;
 int lastVolumePot = 0;
 float volume = 1.0f;
+
+////////////////////////////////////////////////////////////////////////
+// State arrays for 4 ADSR parameters
+int timeVals[4]   = {50, 50, 50, 100};   // AttackTime, DecayTime, SustainTime, ReleaseTime
+float levelVals[4]  = {0.5, 0.45, 0.25, 0};   // AttackLevel, DecayLevel, SustainLevel, ReleaseLevel
+bool controlling[4] = {false, false, false, false}; // is knob controlling
+float oldVal[4]     = {0, 0, 0, 0};   // last value when button pressed/released
+float side[4]       = {0, 0, 0, 0};   // direction tracking
+
+bool prevButton = false;
+
+int pots[4] = {attackPot, decayPot, sustainPot, releasePot};
+
+//////////////////////////////////////////////////////////////////////
 
 const int stickX = 18;
 const int stickY = 17;
@@ -68,7 +82,7 @@ const char* oscTypes[] = {"OFF", "SINE", "PULSE", "SAW_DOWN", "SAW_UP", "TRIANGL
 
 const int pinA = 41;   
 const int pinB = 16;   
-const int pinSW = 42;  // Button (optional)
+const int pinSW = 42;  
 
 // float prevStickYValue = 0;
 // float prevStickXValue = 0;
@@ -114,7 +128,7 @@ int a = 200;
 int b = 700;
 int c = 1000;
 int d = 200;
-char envelope[50];  // Output buffer
+char envelope[128];  // Output buffer
 
 int midiNote = 60;
 int currentNote = 0;
@@ -767,6 +781,52 @@ void showMessage(const char* msg) {
   delay(1000);
 }
 
+void updateKnobs() {
+  bool button = !digitalRead(shiftKey); // active-low
+  bool buttonDelta = (button != prevButton);
+
+  for (int i = 0; i < 4; i++) {
+    // Read raw 12-bit ADC value
+    float potVal = analogRead(pots[i]); // 0–4095
+
+    // Normalize differently depending on control
+    float normVal = potVal / 4095.0; // 0–1 for level
+
+    if (buttonDelta) {
+        controlling[i] = false;
+        oldVal[i] = button ? levelVals[i] : (float)timeVals[i] / 7000.0;
+        side[i] = button ? (normVal - levelVals[i]) : (potVal - timeVals[i]);
+    }
+
+    if (controlling[i]) {
+        if (button) {
+            levelVals[i] = normVal; // 0–1
+        } else {
+            timeVals[i] = (int)(potVal * 7000.0 / 4095.0 + 0.5); // scale raw ADC to 0–7000
+        }
+    } else {
+        if (button) {
+            if (side[i] * (normVal - levelVals[i]) <= 0) controlling[i] = true;
+        } else {
+            if (side[i] * ((float)potVal - (float)timeVals[i]*4095.0/7000.0) <= 0) controlling[i] = true;
+        }
+    }
+  }
+
+  prevButton = button;
+
+  // Debug output
+  // for (int i = 0; i < 4; i++) {
+  //   Serial.print("Pot "); Serial.print(i);
+  //   Serial.print("  Time: "); Serial.print(timeVals[i], 4);
+  //   Serial.print("  Level: "); Serial.print(levelVals[i], 4);
+  //   Serial.print("  Controlling: "); Serial.print(controlling[i]);
+  //   Serial.print("  Side: "); Serial.println(side[i], 4);
+  // }
+
+}
+
+
 void setup() {
   pinMode(octUp, INPUT_PULLUP);
   pinMode(shiftKey, INPUT_PULLUP);
@@ -801,7 +861,7 @@ void setup() {
     keyState[i] = mcp.digitalRead(keyPins[i]);
     lastKeyState[i] = keyState[i];
   }
-  
+
   amy_config_t amy_config = amy_default_config();
   amy_config.features.startup_bleep = 0;
   // Install the default_synths on synths (MIDI chans) 1, 2, and 10 (this is the default).
@@ -854,6 +914,7 @@ void loop() {
   lastOctDownState = octDownState;
   lastOctUpState   = octUpState;
   handleEncoderMenu();
+  updateKnobs();
 
   if (menuNeedsRedraw) {
     drawMenu();
@@ -919,29 +980,29 @@ void loop() {
   float newStickYValue = totalY / (float)samplesY;
 
   // --- Read and average attack pot ---
-  long totalAttack = 0;
-  for (int i = 0; i < samplesAttack; i++) {
-    totalAttack += analogRead(attackPot);
-  }
-  float newAttackValue = totalAttack / (float)samplesAttack;
+  // long totalAttack = 0;
+  // for (int i = 0; i < samplesAttack; i++) {
+  //   totalAttack += analogRead(attackPot);
+  // }
+  // float newAttackValue = totalAttack / (float)samplesAttack;
   // --- Read and average decay pot ---
-  long totalDecay = 0;
-  for (int i = 0; i < samplesDecay; i++) {
-    totalDecay += analogRead(decayPot);
-  }
-  float newDecayValue = totalDecay / (float)samplesDecay;
-  // --- Read and average sustain pot ---
-  long totalSustain = 0;
-  for (int i = 0; i < samplesSustain; i++) {
-    totalSustain += analogRead(sustainPot);
-  }
-  float newSustainValue = totalSustain / (float)samplesSustain;
-  // --- Read and average release pot ---
-  long totalRelease = 0;
-  for (int i = 0; i < samplesRelease; i++) {
-    totalRelease += analogRead(releasePot);
-  }
-  float newReleaseValue = totalRelease / (float)samplesRelease;
+  // long totalDecay = 0;
+  // for (int i = 0; i < samplesDecay; i++) {
+  //   totalDecay += analogRead(decayPot);
+  // }
+  // float newDecayValue = totalDecay / (float)samplesDecay;
+  // // --- Read and average sustain pot ---
+  // long totalSustain = 0;
+  // for (int i = 0; i < samplesSustain; i++) {
+  //   totalSustain += analogRead(sustainPot);
+  // }
+  // float newSustainValue = totalSustain / (float)samplesSustain;
+  // // --- Read and average release pot ---
+  // long totalRelease = 0;
+  // for (int i = 0; i < samplesRelease; i++) {
+  //   totalRelease += analogRead(releasePot);
+  // }
+  // float newReleaseValue = totalRelease / (float)samplesRelease;
   // --- Read and average volume pot ---
   long totalVolume = 0;
   for (int i = 0; i < samplesVolume; i++) {
@@ -952,10 +1013,10 @@ void loop() {
   // --- Exponential smoothing (low-pass filter) ---
   stickXValue = (stickXValue * 0.50f) + (newStickXValue * 0.50f);
   stickYValue = (stickYValue * 0.50f) + (newStickYValue * 0.50f);
-  attackPotValue = (attackPotValue * 0.85f) + (newAttackValue * 0.15f);
-  decayPotValue = (decayPotValue * 0.85f) + (newDecayValue * 0.15f);
-  sustainPotValue = (sustainPotValue * 0.85f) + (newSustainValue * 0.15f);
-  releasePotValue = (releasePotValue * 0.85f) + (newReleaseValue * 0.15f);
+  // attackPotValue = (attackPotValue * 0.85f) + (newAttackValue * 0.15f);
+  // decayPotValue = (decayPotValue * 0.85f) + (newDecayValue * 0.15f);
+  // sustainPotValue = (sustainPotValue * 0.85f) + (newSustainValue * 0.15f);
+  // releasePotValue = (releasePotValue * 0.85f) + (newReleaseValue * 0.15f);
   volumePotValue = (volumePotValue * 0.85f) + (newVolumeValue * 0.15f);
 
   // --- Map and process controls ---
@@ -982,22 +1043,26 @@ void loop() {
     volume = (volumePotValue / 4095.0f) * 10.0f;
   }
 
-  a = (attackPotValue * 7000) / 4095 - 50;
-  if (a < 0) a = 0;
-  b = (decayPotValue * 7000) / 4095 - 30;
-  if (b < 0) b =0;
-  c = (sustainPotValue * 7000) / 4095 - 30;
-  if (c < 0) c = 0;
-  d = (releasePotValue * 7000) / 4095 - 30;
-  if (d < 0) d = 0;
+  // a = (attackPotValue * 7000) / 4095 - 50;
+  // if (a < 0) a = 0;
+  // b = (decayPotValue * 7000) / 4095 - 30;
+  // if (b < 0) b =0;
+  // c = (sustainPotValue * 7000) / 4095 - 30;
+  // if (c < 0) c = 0;
+  // d = (releasePotValue * 7000) / 4095 - 30;
+  // if (d < 0) d = 0;
 
   snprintf(
-    envelope,
-    sizeof(envelope),
-    "%d,1,%d,0.5,%d,0.4,%d,0",
-    a, b, c, d
+      envelope,
+      sizeof(envelope),
+      "%d,%.2f,%d,%.2f,%d,%.2f,%d,%.2f",
+      timeVals[0], levelVals[0], // Attack time, level
+      timeVals[1], levelVals[1], // Decay time, level
+      timeVals[2], levelVals[2], // Sustain time, level
+      timeVals[3], 0  // Release time, level
   );
-  // Serial.println(envelope);
+
+  Serial.println(envelope);
   // Serial.println(cutoff);
   // float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
   // pitchBend += (targetPitchBend - pitchBend) * smoothing;
