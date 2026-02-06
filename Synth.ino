@@ -477,9 +477,10 @@ void handleEncoderMenu() {
       menuNeedsRedraw = true;
       return;
     }
-    else if (currentMenu == 10 && (currentSelection == 0 || currentSelection == 2 || currentSelection == 3)) {
-      editMode = !editMode;
-      menuNeedsRedraw = true;
+    else if (currentMenu == 10) {
+      currentMenu = menus[currentMenu].parent;
+      currentSelection = 0;
+      scrollOffset = 0;
       return;
     }
     const char* choice = menus[currentMenu].items[currentSelection];
@@ -737,30 +738,8 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[5]);
       }
-    } else if (currentMenu == 10 && i == 0) {
-      if (editMode && currentSelection==0) {
-        display.printf("A: [%d]", a);
-      } else {
-        display.printf("A: %d", a);
-      }
-    } else if (currentMenu == 10 && i == 1) {
-      if (editMode && currentSelection==1) {
-        display.printf("D: [%d]", b);
-      } else {
-        display.printf("D: %d", b);
-      }
-    } else if (currentMenu == 10 && i == 2) {
-      if (editMode && currentSelection==2) {
-        display.printf("S: [%d]", c);
-      } else {
-        display.printf("S: %d", c);
-      }
-    } else if (currentMenu == 10 && i == 3) {
-      if (editMode && currentSelection==3) {
-        display.printf("R: [%d]", d);
-      } else {
-        display.printf("R: %d", d);
-      }
+    } else if (currentMenu == 10) {
+      drawADSR();
     // --- Default item rendering ---
     } else {
       display.println(menus[currentMenu].items[i]);
@@ -824,6 +803,54 @@ void updateKnobs() {
   //   Serial.print("  Side: "); Serial.println(side[i], 4);
   // }
 
+}
+
+void drawADSR() {
+  display.clearDisplay();
+
+  // Sum total time
+  int totalTime = 0;
+  for (int i = 0; i < 4; i++) totalTime += timeVals[i];
+
+  // Envelope margins
+  int left   = 4;
+  int right  = SCREEN_WIDTH - 4;
+  int top    = 4;
+  int bottom = SCREEN_HEIGHT - 4;
+
+  int usableWidth  = right - left;
+  int usableHeight = bottom - top;
+
+  // X positions
+  int x[5];
+  x[0] = left;
+
+  int accTime = 0;
+  for (int i = 0; i < 4; i++) {
+    accTime += timeVals[i];
+    x[i + 1] = left + (accTime * usableWidth) / totalTime;
+  }
+
+  // Y positions (invert because screen Y grows downward)
+  int y[5];
+  y[0] = bottom;  // start at 0 level
+
+  y[1] = bottom - (levelVals[0] * usableHeight); // Attack
+  y[2] = bottom - (levelVals[1] * usableHeight); // Decay
+  y[3] = bottom - (levelVals[2] * usableHeight); // Sustain
+  y[4] = bottom - (levelVals[3] * usableHeight); // Release
+
+  // Draw envelope lines
+  for (int i = 0; i < 4; i++) {
+    display.drawLine(x[i], y[i], x[i + 1], y[i + 1], SSD1306_WHITE);
+  }
+
+  // Optional: draw points
+  for (int i = 0; i < 5; i++) {
+    display.fillCircle(x[i], y[i], 2, SSD1306_WHITE);
+  }
+
+  display.display();
 }
 
 
