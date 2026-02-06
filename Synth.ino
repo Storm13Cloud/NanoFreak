@@ -369,10 +369,12 @@ void handleEncoderMenu() {
       patchNumber += val;
       if (patchNumber < 0) patchNumber = 0;
       if (patchNumber > 256) patchNumber = 256;
+      updateUserPatch();
     } else if (editMode && currentMenu == 3 && currentSelection == 0) {
       patchNumber += val;
       if (patchNumber < 1024) patchNumber = 1024;
       if (patchNumber > 1055) patchNumber = 1055;
+      updateUserPatch();
     } else if (editMode && currentMenu == 4 && currentSelection == 0) {
       osc1Type += val;
       if (osc1Type < 0) osc1Type = numOscTypes - 1;
@@ -591,7 +593,7 @@ void handleEncoderMenu() {
     }
     editMode = false; // always exit edit mode after navigating
     menuNeedsRedraw = true;
-    updateUserPatch();
+    
   }
 }
 
