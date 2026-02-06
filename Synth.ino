@@ -71,6 +71,8 @@ float targetDecay = 0.0f;
 float targetSustain = 0.0f;
 float targetRelease = 0.0f;
 
+int numVoices = 6;
+
 int osc1Type = 0;
 int osc2Type = 0;
 int osc3Type = 0;
@@ -256,7 +258,7 @@ void updateUserPatch() {
   amy_add_event(&e);
   e = amy_default_event();
   e.synth = 1;
-  e.num_voices = 6;
+  e.num_voices = numVoices;
   e.patch_number = patchNumber;
   amy_add_event(&e);
   // e = amy_default_event();
@@ -265,7 +267,7 @@ void updateUserPatch() {
   // e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
   // strcpy(e.bp0, envelope);
   amy_add_event(&e);
-  if (patchNumber < 300) {              //if preset patch, make sure adsr is usable
+  if (patchNumber < 128) {              //if preset patch, make sure adsr is usable
     for (int i = 0; i < 3; i++) {
       e = amy_default_event();
       e.synth = 1;
@@ -324,15 +326,15 @@ void updateUserPatch() {
   // // strcpy(e.bp0, envelope);
   // amy_add_event(&e);
 }
-// if 128 to 255 dont change amp coefs, dont adjust env try increasing voices to 9 first
+
 void updateEnvelope() {
-  amy_event e = amy_default_event();
-  e.synth = 1;
-  e.osc = 0;
-  strcpy(e.bp0, envelope);
-  amy_add_event(&e);
-  if (patchNumber < 300) {
-    for (int i = 1; i < 5; i++) {
+  // amy_event e = amy_default_event();
+  // e.synth = 1;
+  // e.osc = 0;
+  // strcpy(e.bp0, envelope);
+  // amy_add_event(&e);
+  if (patchNumber < 128) {
+    for (int i = 0; i < 5; i++) {
       e = amy_default_event();
       e.synth = 1;
       e.osc = i;
@@ -1108,4 +1110,5 @@ void loop() {
 
 
 }
+
 
