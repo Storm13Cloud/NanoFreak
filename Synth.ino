@@ -324,7 +324,7 @@ void updateUserPatch() {
   // // strcpy(e.bp0, envelope);
   // amy_add_event(&e);
 }
-// if 128 to 255 dont change amp coefs, dont adjust env
+// if 128 to 255 dont change amp coefs, dont adjust env try increasing voices to 9 first
 void updateEnvelope() {
   amy_event e = amy_default_event();
   e.synth = 1;
@@ -1108,3 +1108,4 @@ void loop() {
 
 
 }
+
