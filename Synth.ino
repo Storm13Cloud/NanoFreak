@@ -326,7 +326,7 @@ void updateUserPatch() {
   // // strcpy(e.bp0, envelope);
   // amy_add_event(&e);
 }
-
+// dx7 123456 used for algo, 7 and 8 modulation, 0 main? try envelope for 0 first, if not work, 0123456
 void updateEnvelope() {
   amy_event e = amy_default_event();
   e.synth = 1;
