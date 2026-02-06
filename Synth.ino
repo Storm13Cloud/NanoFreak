@@ -328,11 +328,11 @@ void updateUserPatch() {
 }
 
 void updateEnvelope() {
-  // amy_event e = amy_default_event();
-  // e.synth = 1;
+  amy_event e = amy_default_event();
+  e.synth = 1;
   // e.osc = 0;
   // strcpy(e.bp0, envelope);
-  // amy_add_event(&e);
+  amy_add_event(&e);
   if (patchNumber < 128) {
     for (int i = 0; i < 5; i++) {
       e = amy_default_event();
@@ -1110,5 +1110,4 @@ void loop() {
 
 
 }
-
 
