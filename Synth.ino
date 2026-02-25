@@ -810,11 +810,12 @@ void updateKnobs() {
 void drawADSR() {
   display.clearDisplay();
 
-  // Sum total time
+  // --- Total time ---
   int totalTime = 0;
   for (int i = 0; i < 4; i++) totalTime += timeVals[i];
+  if (totalTime == 0) totalTime = 1;
 
-  // Envelope margins
+  // --- Margins ---
   int left   = 4;
   int right  = SCREEN_WIDTH - 4;
   int top    = 4;
@@ -823,7 +824,7 @@ void drawADSR() {
   int usableWidth  = right - left;
   int usableHeight = bottom - top;
 
-  // X positions
+  // --- X positions ---
   int x[5];
   x[0] = left;
 
@@ -833,28 +834,34 @@ void drawADSR() {
     x[i + 1] = left + (accTime * usableWidth) / totalTime;
   }
 
-  // Y positions (invert because screen Y grows downward)
+  // --- Y positions ---
   int y[5];
-  y[0] = bottom;  // start at 0 level
 
-  y[1] = bottom - (levelVals[0] * usableHeight); // Attack
-  y[2] = bottom - (levelVals[1] * usableHeight); // Decay
-  y[3] = bottom - (levelVals[2] * usableHeight); // Sustain
-  y[4] = bottom - (levelVals[3] * usableHeight); // Release
+  int attackLevel  = levelVals[0];
+  int sustainLevel = levelVals[2];
 
-  // Draw envelope lines
+  // Scale 0–100 → screen height
+  int attackY  = bottom - (attackLevel  * usableHeight + 50) / 100;
+  int sustainY = bottom - (sustainLevel * usableHeight + 50) / 100;
+
+  y[0] = bottom;     // Start at 0
+  y[1] = attackY;    // Attack peak
+  y[2] = sustainY;   // End of decay
+  y[3] = sustainY;   // Sustain (flat)
+  y[4] = bottom;     // Release to 0
+
+  // --- Draw lines ---
   for (int i = 0; i < 4; i++) {
     display.drawLine(x[i], y[i], x[i + 1], y[i + 1], SSD1306_WHITE);
   }
 
-  // Optional: draw points
+  // --- Draw points ---
   for (int i = 0; i < 5; i++) {
     display.fillCircle(x[i], y[i], 2, SSD1306_WHITE);
   }
 
   display.display();
 }
-
 
 void setup() {
   pinMode(octUp, INPUT_PULLUP);
@@ -1108,3 +1115,4 @@ void loop() {
 
 
 }
+
