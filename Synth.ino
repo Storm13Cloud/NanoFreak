@@ -41,10 +41,10 @@ float volume = 1.0f;
 ////////////////////////////////////////////////////////////////////////
 // State arrays for 4 ADSR parameters
 int timeVals[4]   = {50, 50, 50, 100};   // AttackTime, DecayTime, SustainTime, ReleaseTime
-float levelVals[4]  = {0.5, 0.45, 0.25, 0};   // AttackLevel, DecayLevel, SustainLevel, ReleaseLevel
+uint16_t levelVals[4]  = {50, 45, 25, 0};   // AttackLevel, DecayLevel, SustainLevel, ReleaseLevel
 bool controlling[4] = {false, false, false, false}; // is knob controlling
-float oldVal[4]     = {0, 0, 0, 0};   // last value when button pressed/released
-float side[4]       = {0, 0, 0, 0};   // direction tracking
+int oldVal[4]     = {0, 0, 0, 0};   // last value when button pressed/released
+int side[4]       = {0, 0, 0, 0};   // direction tracking
 
 bool prevButton = false;
 
@@ -330,11 +330,20 @@ void updateUserPatch() {
 void updateEnvelope() {
   amy_event e = amy_default_event();
   e.synth = 1;
-  // e.osc = 0;
-  // strcpy(e.bp0, envelope);
+  e.osc = 0;
+  strcpy(e.bp0, envelope);
   amy_add_event(&e);
   if (patchNumber < 128) {
     for (int i = 0; i < 5; i++) {
+      e = amy_default_event();
+      e.synth = 1;
+      e.osc = i;
+      strcpy(e.bp0, envelope);
+      amy_add_event(&e);
+    }
+  }
+  else if (patchNumber > 127 && patchNumber < 300) {
+    for (int i = 1; i < 6; i++) {
       e = amy_default_event();
       e.synth = 1;
       e.osc = i;
@@ -769,44 +778,33 @@ void updateKnobs() {
   bool buttonDelta = (button != prevButton);
 
   for (int i = 0; i < 4; i++) {
-    // Read raw 12-bit ADC value
-    float potVal = analogRead(pots[i]); // 0–4095
-
-    // Normalize differently depending on control
-    float normVal = potVal / 4095.0; // 0–1 for level
+    int potRaw = analogRead(pots[i]);      // 0–4095
+    int levelPot = (potRaw * 100 + 2047) / 4095;  // 0–100
 
     if (buttonDelta) {
-        controlling[i] = false;
-        oldVal[i] = button ? levelVals[i] : (float)timeVals[i] / 7000.0;
-        side[i] = button ? (normVal - levelVals[i]) : (potVal - timeVals[i]);
+      controlling[i] = false;
+      oldVal[i] = button ? levelVals[i] : timeVals[i];
+      side[i] = button ? (levelPot - levelVals[i]) : (potRaw - (timeVals[i] * 4095) / 7000);
     }
 
     if (controlling[i]) {
-        if (button) {
-            levelVals[i] = normVal; // 0–1
-        } else {
-            timeVals[i] = (int)(potVal * 7000.0 / 4095.0 + 0.5); // scale raw ADC to 0–7000
-        }
+      if (button) {
+        levelVals[i] = levelPot;           // 0–100
+      } else {
+        timeVals[i] = (potRaw * 7000 + 2047) / 4095;
+      }
     } else {
-        if (button) {
-            if (side[i] * (normVal - levelVals[i]) <= 0) controlling[i] = true;
-        } else {
-            if (side[i] * ((float)potVal - (float)timeVals[i]*4095.0/7000.0) <= 0) controlling[i] = true;
-        }
+      if (button) {
+        if (side[i] * (levelPot - levelVals[i]) <= 0)
+          controlling[i] = true;
+      } else {
+        if (side[i] * (potRaw - (timeVals[i] * 4095) / 7000) <= 0)
+          controlling[i] = true;
+      }
     }
   }
 
   prevButton = button;
-
-  // Debug output
-  // for (int i = 0; i < 4; i++) {
-  //   Serial.print("Pot "); Serial.print(i);
-  //   Serial.print("  Time: "); Serial.print(timeVals[i], 4);
-  //   Serial.print("  Level: "); Serial.print(levelVals[i], 4);
-  //   Serial.print("  Controlling: "); Serial.print(controlling[i]);
-  //   Serial.print("  Side: "); Serial.println(side[i], 4);
-  // }
-
 }
 
 void drawADSR() {
@@ -1084,13 +1082,13 @@ void loop() {
   // if (d < 0) d = 0;
 
   snprintf(
-      envelope,
-      sizeof(envelope),
-      "%d,%.2f,%d,%.2f,%d,%.2f,%d,%.2f",
-      timeVals[0], levelVals[0], // Attack time, level
-      timeVals[1], levelVals[1], // Decay time, level
-      timeVals[2], levelVals[2], // Sustain time, level
-      timeVals[3], 0  // Release time, level
+    envelope,
+    sizeof(envelope),
+    "%d,%d.%02d,%d,%d.%02d,%d,%d.%02d,%d,0.00",
+    timeVals[0], levelVals[0] / 100, levelVals[0] % 100,
+    timeVals[1], levelVals[1] / 100, levelVals[1] % 100,
+    timeVals[2], levelVals[2] / 100, levelVals[2] % 100,
+    timeVals[3]
   );
 
   Serial.println(envelope);
@@ -1110,4 +1108,3 @@ void loop() {
 
 
 }
-
