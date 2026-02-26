@@ -1092,10 +1092,10 @@ void loop() {
     envelope,
     sizeof(envelope),
     "%d,%d.%02d,%d,%d.%02d,%d,%d.%02d,%d,0.00",
-    timeVals[0], levelVals[0] / 100, levelVals[0] % 100,
-    timeVals[1], levelVals[1] / 100, levelVals[1] % 100,
-    timeVals[2], levelVals[2] / 100, levelVals[2] % 100,
-    timeVals[3]
+    timeVals[0], levelVals[0] / 100, levelVals[0] % 100,   // Attack
+    timeVals[1], levelVals[2] / 100, levelVals[2] % 100,   // Decay → sustain level
+    timeVals[2], levelVals[2] / 100, levelVals[2] % 100,   // Sustain
+    timeVals[3]                                            // Release
   );
 
   Serial.println(envelope);
@@ -1115,4 +1115,5 @@ void loop() {
 
 
 }
+
 
