@@ -105,6 +105,50 @@ float samplesRelease = 8;
 long totalVolume = 0;
 float samplesVolume = 8;
 
+#define POT_FILTER_SAMPLES 8
+#define POT_DEADBAND 15  // Only update if change >= 15
+int potRawHistory[4][POT_FILTER_SAMPLES] = {{0}, {0}, {0}, {0}};
+int potFilterIndices[4] = {0, 0, 0, 0};
+int potRawFiltered[4] = {0, 0, 0, 0};  // Store last filtered value
+
+int getFilteredPotRaw(int potIndex, int currentRaw) {
+  // Add current reading to history
+  potRawHistory[potIndex][potFilterIndices[potIndex]] = currentRaw;
+  potFilterIndices[potIndex] = (potFilterIndices[potIndex] + 1) % POT_FILTER_SAMPLES;
+  
+  // Calculate moving average
+  long sum = 0;
+  for (int i = 0; i < POT_FILTER_SAMPLES; i++) {
+    sum += potRawHistory[potIndex][i];
+  }
+  int filtered = sum / POT_FILTER_SAMPLES;
+  
+  // Apply deadband: only update if change >= POT_DEADBAND
+  if (abs(filtered - potRawFiltered[potIndex]) >= POT_DEADBAND) {
+    potRawFiltered[potIndex] = filtered;
+  }
+  
+  return potRawFiltered[potIndex];
+}
+
+int lastTimeVals[4] = {50, 50, 50, 100};
+uint16_t lastLevelVals[4] = {50, 45, 25, 0};
+bool adsrChanged = false;
+
+bool checkADSRChanged() {
+  bool changed = false;
+  
+  for (int i = 0; i < 4; i++) {
+    if (timeVals[i] != lastTimeVals[i] || levelVals[i] != lastLevelVals[i]) {
+      changed = true;
+      lastTimeVals[i] = timeVals[i];
+      lastLevelVals[i] = levelVals[i];
+    }
+  }
+  
+  return changed;
+}
+
 static uint8_t prevNextCode = 0;
 static int16_t store=0;
 
@@ -609,6 +653,10 @@ void handleEncoderMenu() {
 }
 
 void drawMenu() {
+  if (currentMenu == 10) {
+    drawADSR();
+    return;  // Don't draw the menu
+  }
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
@@ -778,7 +826,8 @@ void updateKnobs() {
   bool buttonDelta = (button != prevButton);
 
   for (int i = 0; i < 4; i++) {
-    int potRaw = analogRead(pots[i]);      // 0–4095
+    int potRaw = analogRead(pots[i]);         // 0–4095 (raw reading)
+    potRaw = getFilteredPotRaw(i, potRaw);    // Apply filter + deadband
     int levelPot = (potRaw * 100 + 2047) / 4095;  // 0–100
 
     if (buttonDelta) {
@@ -808,6 +857,11 @@ void updateKnobs() {
 }
 
 void drawADSR() {
+  // Only redraw if values changed
+  if (!checkADSRChanged()) {
+    return;  // Skip screen update
+  }
+  
   display.clearDisplay();
 
   // --- Total time ---
@@ -1115,4 +1169,3 @@ void loop() {
 
 
 }
-
