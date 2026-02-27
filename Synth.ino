@@ -226,7 +226,7 @@ struct Menu {
 Menu menus[] = {
   {"Main Menu", {"Patch", "User Patch", "Settings"}, 3, -1},         // 0
   {"Settings", {"Brightness", "Volume", "Back"}, 3, 0},               // 1
-  {"Patch", {"Patch Number", "Back"}, 2, 0},                                   // 2
+  {"Patch", {"Patch Number", "ENV", "Back"}, 3, 0},                                   // 2
   {"User Patch", {"Patch Number", "OSC 1", "OSC 2", "OSC 3", "OSC 4", "OSC 5", "OSC 6", "LFO", "Pitch", "Pan", "Filter Type", "Filter Cutoff", "Resonance", "Save", "Back"}, 15, 0},   // 3
   {"OSC 1", {"Wave", "ENV 1", "ENV 2", "Back"}, 4, 3},             // 4
   {"OSC 2", {"Wave", "ENV 1", "ENV 2", "OSC 1 Chain", "Param", "Back"}, 6, 3},             // 5
@@ -249,6 +249,8 @@ Menu menus[] = {
   {"LFO", {"Type", "Freq", "Control Param", "Param Intensity", "Back"}, 5, 3},    // 22
   {"Filter Cutoff", {"Value", "Control Param", "Param Intensity", "Back"}, 4, 3}, // 23
   {"Resonance", {"Value", "Control Param", "Param Instensity", "Back"}, 4, 3},    // 24
+  {"MAIN ENV", {"A", "D", "S", "R", "Param", "Back"}, 6, 2},                   // 25
+
 };
 
 bool osc0Chains[6] = {false, false, false, false, false, false};
@@ -566,6 +568,12 @@ void handleEncoderMenu() {
       scrollOffset = 0;
       return;
     }
+    else if (currentMenu == 25) {
+      currentMenu = menus[currentMenu].parent;
+      currentSelection = 0;
+      scrollOffset = 0;
+      return;
+    }
     const char* choice = menus[currentMenu].items[currentSelection];
     if (strcmp(choice, "Settings") == 0) {
       currentMenu = 1;
@@ -663,6 +671,10 @@ void handleEncoderMenu() {
       currentMenu = 24;
       currentSelection = 0;
       scrollOffset = 0;
+    }  else if (strcmp(choice, "ENV") == 0) {
+      currentMenu = 25;
+      currentSelection = 0;
+      scrollOffset = 0;
     } else if (strcmp(choice, "Save") == 0) {
       // Save user patch
     } else if (strcmp(choice, "Back") == 0) {
@@ -679,7 +691,7 @@ void handleEncoderMenu() {
 }
 
 void drawMenu() {
-  if (currentMenu == 10) {
+  if (currentMenu == 10 || currentMenu == 25) {
     drawADSR();
     return;  // Don't draw the menu
   }
@@ -825,8 +837,8 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[5]);
       }
-    } else if (currentMenu == 10) {
-      drawADSR();
+    // } else if (currentMenu == 10) {
+    //   drawADSR();
     // --- Default item rendering ---
     } else {
       display.println(menus[currentMenu].items[i]);
