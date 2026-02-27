@@ -105,29 +105,55 @@ float samplesRelease = 8;
 long totalVolume = 0;
 float samplesVolume = 8;
 
-#define POT_FILTER_SAMPLES 8
+#define POT_FILTER_SAMPLES 9
 #define POT_DEADBAND 15  // Only update if change >= 15
+
 int potRawHistory[4][POT_FILTER_SAMPLES] = {{0}, {0}, {0}, {0}};
 int potFilterIndices[4] = {0, 0, 0, 0};
 int potRawFiltered[4] = {0, 0, 0, 0};  // Store last filtered value
 
-int getFilteredPotRaw(int potIndex, int currentRaw) {
-  // Add current reading to history
-  potRawHistory[potIndex][potFilterIndices[potIndex]] = currentRaw;
-  potFilterIndices[potIndex] = (potFilterIndices[potIndex] + 1) % POT_FILTER_SAMPLES;
-  
-  // Calculate moving average
-  long sum = 0;
-  for (int i = 0; i < POT_FILTER_SAMPLES; i++) {
-    sum += potRawHistory[potIndex][i];
+// Simple insertion sort
+void sortArray(int *arr, int size) {
+  for (int i = 1; i < size; i++) {
+    int key = arr[i];
+    int j = i - 1;
+    while (j >= 0 && arr[j] > key) {
+      arr[j + 1] = arr[j];
+      j--;
+    }
+    arr[j + 1] = key;
   }
-  int filtered = sum / POT_FILTER_SAMPLES;
-  
-  // Apply deadband: only update if change >= POT_DEADBAND
+}
+
+int getFilteredPotRaw(int potIndex, int currentRaw) {
+  // Store new sample
+  potRawHistory[potIndex][potFilterIndices[potIndex]] = currentRaw;
+  potFilterIndices[potIndex] = 
+      (potFilterIndices[potIndex] + 1) % POT_FILTER_SAMPLES;
+
+  // Copy history to temp array
+  int temp[POT_FILTER_SAMPLES];
+  for (int i = 0; i < POT_FILTER_SAMPLES; i++) {
+    temp[i] = potRawHistory[potIndex][i];
+  }
+
+  // Sort temp array
+  sortArray(temp, POT_FILTER_SAMPLES);
+
+  // Get median
+  int filtered;
+  if (POT_FILTER_SAMPLES % 2 == 0) {
+    filtered = (temp[POT_FILTER_SAMPLES/2 - 1] +
+                temp[POT_FILTER_SAMPLES/2]) / 2;
+  } else {
+    filtered = temp[POT_FILTER_SAMPLES/2];
+  }
+
+  // Apply deadband
   if (abs(filtered - potRawFiltered[potIndex]) >= POT_DEADBAND) {
     potRawFiltered[potIndex] = filtered;
   }
-  
+
   return potRawFiltered[potIndex];
 }
 
