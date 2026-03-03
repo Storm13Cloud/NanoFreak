@@ -442,7 +442,7 @@ void handleEncoderMenu() {
   const unsigned int debounce = 250;
 
   static int8_t c, val;
-  if (currentMenu >= 10 && currentMenu <= 21) menuNeedsRedraw = true;
+  if (currentMenu >= 10 && currentMenu <= 21 || currentMenu == 25) menuNeedsRedraw = true;
   
   // --- Handle rotation ---
   if (val = read_rotary()) {
@@ -570,7 +570,7 @@ void handleEncoderMenu() {
     }
     else if (currentMenu == 25) {
       currentMenu = menus[currentMenu].parent;
-      currentSelection = 0;
+      currentSelection = 1;
       scrollOffset = 0;
       return;
     }
@@ -671,7 +671,7 @@ void handleEncoderMenu() {
       currentMenu = 24;
       currentSelection = 0;
       scrollOffset = 0;
-    }  else if (strcmp(choice, "ENV") == 0) {
+    }  else if (strcmp(choice, "ENV") == 0 && currentMenu == 2) {
       currentMenu = 25;
       currentSelection = 0;
       scrollOffset = 0;
@@ -837,7 +837,7 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[5]);
       }
-    // } else if (currentMenu == 10) {
+    // } else if (currentMenu == 10 || currentMenu == 25) {
     //   drawADSR();
     // --- Default item rendering ---
     } else {
