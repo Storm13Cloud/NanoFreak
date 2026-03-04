@@ -338,9 +338,9 @@ void updateUserPatch() {
   // e.osc = 0;
   // e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
   // strcpy(e.bp0, envelope);
-  amy_add_event(&e);
+  // amy_add_event(&e);
   if (patchNumber < 128) {              //if preset patch, make sure adsr is usable
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
       e = amy_default_event();
       e.synth = 1;
       e.osc = i;
@@ -895,7 +895,7 @@ void updateKnobs() {
 }
 
 void drawADSR() {
-  // Only redraw if values changed
+  // Only redraw if values changed, change this to have an initial load, increment by one, then check for change
   if (!checkADSRChanged()) {
     return;  // Skip screen update
   }
