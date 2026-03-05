@@ -367,38 +367,8 @@ void updateUserPatch() {
       lastChained = i;
     }
   }
-  // e = amy_default_event();
-  // e.synth = 1;
-  // e.osc = 1;
-  // e.wave = (osc2Type == 0) ? 16 : (osc2Type - 1);
-  // // strcpy(e.bp0, envelope);
-  // amy_add_event(&e);
-  // e = amy_default_event();
-  // e.synth = 1;
-  // e.osc = 2;
-  // e.wave = (osc3Type == 0) ? 16 : (osc3Type - 1);
-  // // strcpy(e.bp0, envelope);
-  // amy_add_event(&e);
-  // e = amy_default_event();
-  // e.synth = 1;
-  // e.osc = 3;
-  // e.wave = (osc4Type == 0) ? 16 : (osc4Type - 1);
-  // // strcpy(e.bp0, envelope);
-  // amy_add_event(&e);
-  // e = amy_default_event();
-  // e.synth = 1;
-  // e.osc = 4;
-  // e.wave = (osc5Type == 0) ? 16 : (osc5Type - 1);
-  // // strcpy(e.bp0, envelope);
-  // amy_add_event(&e);
-  // e = amy_default_event();
-  // e.synth = 1;
-  // e.osc = 5;
-  // e.wave = (osc6Type == 0) ? 16 : (osc6Type - 1);
-  // // strcpy(e.bp0, envelope);
-  // amy_add_event(&e);
 }
-// dx7 123456 used for algo, 7 and 8 modulation, 0 main? try envelope for 0 first, if not work, 0123456
+
 void updateEnvelope() {
   amy_event e = amy_default_event();
   e.synth = 1;
@@ -406,7 +376,7 @@ void updateEnvelope() {
   strcpy(e.bp0, envelope);
   amy_add_event(&e);
   if (patchNumber < 128) {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 1; i < 5; i++) {
       e = amy_default_event();
       e.synth = 1;
       e.osc = i;
@@ -895,9 +865,13 @@ void updateKnobs() {
 }
 
 void drawADSR() {
-  // Only redraw if values changed, change this to have an initial load, increment by one, then check for change
-  if (!checkADSRChanged()) {
-    return;  // Skip screen update
+  // Only redraw if values changed
+  static uint8_t adsrCounter = 0;
+
+  adsrCounter++;
+
+  if (adsrCounter == 1 && !checkADSRChanged()) {
+      return;  // Skip screen update only on first pass if nothing changed
   }
   
   display.clearDisplay();
