@@ -440,6 +440,7 @@ void handleEncoderMenu() {
       osc1Type += val;
       if (osc1Type < 0) osc1Type = numOscTypes - 1;
       if (osc1Type >= numOscTypes) osc1Type = 0;
+      updateUserPatch();
     } else if (editMode && currentMenu == 5 && currentSelection == 0) {
       osc2Type += val;
       if (osc2Type < 0) osc2Type = numOscTypes - 1;
@@ -460,16 +461,16 @@ void handleEncoderMenu() {
       osc6Type += val;
       if (osc6Type < 0) osc6Type = numOscTypes - 1;
       if (osc6Type >= numOscTypes) osc6Type = 0;
-    } else if (editMode && currentMenu == 5 && currentSelection == 3) { // change this to be on button press !osc0Chains[n]
-      if (val != 0) osc0Chains[1] ^= 1;
-    } else if (editMode && currentMenu == 6 && currentSelection == 3) {
-      if (val != 0) osc0Chains[2] ^= 1;
-    } else if (editMode && currentMenu == 7 && currentSelection == 3) {
-      if (val != 0) osc0Chains[3] ^= 1;
-    } else if (editMode && currentMenu == 8 && currentSelection == 3) {
-      if (val != 0) osc0Chains[4] ^= 1;
-    } else if (editMode && currentMenu == 9 && currentSelection == 3) {
-      if (val != 0) osc0Chains[5] ^= 1;
+    // } else if (editMode && currentMenu == 5 && currentSelection == 3) { // change this to be on button press !osc0Chains[n]
+    //   if (val != 0) osc0Chains[1] ^= 1;
+    // } else if (editMode && currentMenu == 6 && currentSelection == 3) {
+    //   if (val != 0) osc0Chains[2] ^= 1;
+    // } else if (editMode && currentMenu == 7 && currentSelection == 3) {
+    //   if (val != 0) osc0Chains[3] ^= 1;
+    // } else if (editMode && currentMenu == 8 && currentSelection == 3) {
+    //   if (val != 0) osc0Chains[4] ^= 1;
+    // } else if (editMode && currentMenu == 9 && currentSelection == 3) {
+    //   if (val != 0) osc0Chains[5] ^= 1;
     } else {
       // Navigation mode: move cursor up/down
       currentSelection += (val > 0) ? 1 : -1;
