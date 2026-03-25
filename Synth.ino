@@ -349,6 +349,14 @@ void updateUserPatch() {
       amy_add_event(&e);
     }
   }
+  else if (patchNumber > 1023) {
+    e = amy_default_event();
+    e.synth = 1;
+    e.osc = 0;
+    e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
+    strcpy(e.bp0, envelope);
+    amy_add_event(&e);
+  }
   int lastChained = -1;
   for (int i = 1; i < 5; i++) {
     if (osc0Chains[i]) {
@@ -452,7 +460,7 @@ void handleEncoderMenu() {
       osc6Type += val;
       if (osc6Type < 0) osc6Type = numOscTypes - 1;
       if (osc6Type >= numOscTypes) osc6Type = 0;
-    } else if (editMode && currentMenu == 5 && currentSelection == 3) {
+    } else if (editMode && currentMenu == 5 && currentSelection == 3) { // change this to be on button press !osc0Chains[n]
       if (val != 0) osc0Chains[1] ^= 1;
     } else if (editMode && currentMenu == 6 && currentSelection == 3) {
       if (val != 0) osc0Chains[2] ^= 1;
@@ -507,28 +515,53 @@ void handleEncoderMenu() {
       menuNeedsRedraw = true;
       return;
     }
-    else if (currentMenu == 5 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
+    else if (currentMenu == 5 && (currentSelection == 0 || currentSelection == 4)) {
       editMode = !editMode;
       menuNeedsRedraw = true;
       return;
     }
-    else if (currentMenu == 6 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
+    else if (currentMenu == 5 && (currentSelection == 3)) {
+      osc0Chains[1] = !osc0Chains[1];
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 6 && (currentSelection == 0 || currentSelection == 4)) {
       editMode = !editMode;
       menuNeedsRedraw = true;
       return;
     }
-    else if (currentMenu == 7 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
+    else if (currentMenu == 6 && (currentSelection == 3)) {
+      osc0Chains[2] = !osc0Chains[2];
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 7 && (currentSelection == 0 || currentSelection == 4)) {
       editMode = !editMode;
       menuNeedsRedraw = true;
       return;
     }
-    else if (currentMenu == 8 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
+    else if (currentMenu == 7 && (currentSelection == 3)) {
+      osc0Chains[3] = !osc0Chains[3];
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 8 && (currentSelection == 0 || currentSelection == 4)) {
       editMode = !editMode;
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 8 && (currentSelection == 3)) {
+      osc0Chains[4] = !osc0Chains[4];
       menuNeedsRedraw = true;
       return;
     }
     else if (currentMenu == 9 && (currentSelection == 0 || currentSelection == 3 || currentSelection == 4)) {
       editMode = !editMode;
+      menuNeedsRedraw = true;
+      return;
+    }
+    else if (currentMenu == 9 && (currentSelection == 3)) {
+      osc0Chains[5] = !osc0Chains[5];
       menuNeedsRedraw = true;
       return;
     }
@@ -807,8 +840,6 @@ void drawMenu() {
         display.print("OSC 1 Chain: ");
         display.println(osc0Chains[5]);
       }
-    // } else if (currentMenu == 10 || currentMenu == 25) {
-    //   drawADSR();
     // --- Default item rendering ---
     } else {
       display.println(menus[currentMenu].items[i]);
@@ -1046,19 +1077,9 @@ void loop() {
         lastKeyState[i] = keyState[i];
         if (keyState[i] == LOW) {
           playNote(i);
-          // Serial.print("Key ");
-          // Serial.print(i);
-          // Serial.print(" pressed");
-          // Serial.println("keystate");
-          // Serial.print(keyState[i]);
         }
         else {
           noteOff(i);
-          // Serial.print("Key ");
-          // Serial.print(i);
-          // Serial.print(" released");
-          // Serial.println("keystate");
-          // Serial.print(keyState[i]);
         }
       }
     }
@@ -1081,30 +1102,6 @@ void loop() {
   }
   float newStickYValue = totalY / (float)samplesY;
 
-  // --- Read and average attack pot ---
-  // long totalAttack = 0;
-  // for (int i = 0; i < samplesAttack; i++) {
-  //   totalAttack += analogRead(attackPot);
-  // }
-  // float newAttackValue = totalAttack / (float)samplesAttack;
-  // --- Read and average decay pot ---
-  // long totalDecay = 0;
-  // for (int i = 0; i < samplesDecay; i++) {
-  //   totalDecay += analogRead(decayPot);
-  // }
-  // float newDecayValue = totalDecay / (float)samplesDecay;
-  // // --- Read and average sustain pot ---
-  // long totalSustain = 0;
-  // for (int i = 0; i < samplesSustain; i++) {
-  //   totalSustain += analogRead(sustainPot);
-  // }
-  // float newSustainValue = totalSustain / (float)samplesSustain;
-  // // --- Read and average release pot ---
-  // long totalRelease = 0;
-  // for (int i = 0; i < samplesRelease; i++) {
-  //   totalRelease += analogRead(releasePot);
-  // }
-  // float newReleaseValue = totalRelease / (float)samplesRelease;
   // --- Read and average volume pot ---
   long totalVolume = 0;
   for (int i = 0; i < samplesVolume; i++) {
@@ -1115,10 +1112,6 @@ void loop() {
   // --- Exponential smoothing (low-pass filter) ---
   stickXValue = (stickXValue * 0.50f) + (newStickXValue * 0.50f);
   stickYValue = (stickYValue * 0.50f) + (newStickYValue * 0.50f);
-  // attackPotValue = (attackPotValue * 0.85f) + (newAttackValue * 0.15f);
-  // decayPotValue = (decayPotValue * 0.85f) + (newDecayValue * 0.15f);
-  // sustainPotValue = (sustainPotValue * 0.85f) + (newSustainValue * 0.15f);
-  // releasePotValue = (releasePotValue * 0.85f) + (newReleaseValue * 0.15f);
   volumePotValue = (volumePotValue * 0.85f) + (newVolumeValue * 0.15f);
 
   // --- Map and process controls ---
@@ -1145,15 +1138,6 @@ void loop() {
     volume = (volumePotValue / 4095.0f) * 10.0f;
   }
 
-  // a = (attackPotValue * 7000) / 4095 - 50;
-  // if (a < 0) a = 0;
-  // b = (decayPotValue * 7000) / 4095 - 30;
-  // if (b < 0) b =0;
-  // c = (sustainPotValue * 7000) / 4095 - 30;
-  // if (c < 0) c = 0;
-  // d = (releasePotValue * 7000) / 4095 - 30;
-  // if (d < 0) d = 0;
-
   snprintf(
     envelope,
     sizeof(envelope),
@@ -1165,9 +1149,6 @@ void loop() {
   );
 
   Serial.println(envelope);
-  // Serial.println(cutoff);
-  // float targetPitchBend = fmap(stickYValue, 0.0f, 4095.0f, 1.5f, -1.5f);
-  // pitchBend += (targetPitchBend - pitchBend) * smoothing;
 
   updateEnvelope();
   amy_event e = amy_default_event();
@@ -1176,7 +1157,6 @@ void loop() {
   e.filter_freq_coefs[0] = cutoff;
   e.volume = volume;
   e.resonance = resonance; 
-  // e.pitch_bend = pitchBend;
   amy_add_event(&e);
 
 
