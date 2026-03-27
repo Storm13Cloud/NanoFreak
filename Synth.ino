@@ -42,6 +42,7 @@ float volume = 1.0f;
 // State arrays for 4 ADSR parameters
 int timeVals[4]   = {50, 50, 50, 100};   // AttackTime, DecayTime, SustainTime, ReleaseTime
 uint16_t levelVals[4]  = {50, 45, 25, 0};   // AttackLevel, DecayLevel, SustainLevel, ReleaseLevel
+// int levelMap[3] = {0, 2, 2};
 bool controlling[4] = {false, false, false, false}; // is knob controlling
 int oldVal[4]     = {0, 0, 0, 0};   // last value when button pressed/released
 int side[4]       = {0, 0, 0, 0};   // direction tracking
@@ -326,7 +327,7 @@ void updateUserPatch() {
   amy_event e = amy_default_event();
   e.patch_number = patchNumber;
   Serial.println("Patch reset");
-  e.reset_osc = RESET_PATCH;
+  e.reset_osc = RESET_ALL_OSCS;
   amy_add_event(&e);
   e = amy_default_event();
   e.synth = 1;
@@ -340,7 +341,7 @@ void updateUserPatch() {
   // strcpy(e.bp0, envelope);
   // amy_add_event(&e);
   if (patchNumber < 128) {              //if preset patch, make sure adsr is usable
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
       e = amy_default_event();
       e.synth = 1;
       e.osc = i;
@@ -354,7 +355,10 @@ void updateUserPatch() {
     e.synth = 1;
     e.osc = 0;
     e.wave = (osc1Type == 0) ? 16 : (osc1Type - 1);
-    strcpy(e.bp0, envelope);
+    for (int i = 0; i < 4; i++) {
+      e.eg0_times[i]  = timeVals[i];
+      e.eg0_values[i] = levelVals[i] / 100.0f;
+    }
     amy_add_event(&e);
   }
   int lastChained = -1;
@@ -381,14 +385,20 @@ void updateEnvelope() {
   amy_event e = amy_default_event();
   e.synth = 1;
   e.osc = 0;
-  strcpy(e.bp0, envelope);
+  for (int i = 0; i < 4; i++) {
+    e.eg0_times[i] = timeVals[i];
+    e.eg0_values[i] = levelVals[i] / 100.0f;
+  }
   amy_add_event(&e);
   if (patchNumber < 128) {
-    for (int i = 1; i < 5; i++) {
+    for (int i = 2; i < 5; i++) {
       e = amy_default_event();
       e.synth = 1;
       e.osc = i;
-      strcpy(e.bp0, envelope);
+      for (int l = 0; l < 4; l++) {
+        e.eg0_times[l] = timeVals[l];
+        e.eg0_values[l] = levelVals[l] / 100.0f;
+      }
       amy_add_event(&e);
     }
   }
@@ -397,7 +407,10 @@ void updateEnvelope() {
       e = amy_default_event();
       e.synth = 1;
       e.osc = i;
-      strcpy(e.bp0, envelope);
+      for (int l = 0; l < 4; l++) {
+        e.eg0_times[l] = timeVals[l];
+        e.eg0_values[l] = levelVals[l] / 100.0f;
+      }
       amy_add_event(&e);
     }
   }
@@ -407,7 +420,10 @@ void updateEnvelope() {
         e = amy_default_event();
         e.synth = 1;
         e.osc = i;
-        strcpy(e.bp0, envelope);
+        for (int l = 0; l < 4; l++) {
+          e.eg0_times[l] = timeVals[l];
+          e.eg0_values[l] = levelVals[l] / 100.0f;
+        }
         amy_add_event(&e);
       }
     }
@@ -1004,10 +1020,14 @@ void setup() {
   amy_config.midi = AMY_MIDI_IS_UART;
   // amy_config.midi_out = 17;
   amy_config.midi_in = 15;
+  #ifndef AMYBOARD_ARDUINO
+  amy_config.audio = AMY_AUDIO_IS_I2S;
   amy_config.i2s_bclk = 35;
   amy_config.i2s_lrc = 36;
   amy_config.i2s_dout = 21;
-  amy_config.audio = AMY_AUDIO_IS_I2S;
+  #endif
+  amy_config.platform.multicore = 1;
+  amy_config.platform.multithread = 1;
   amy_start(amy_config);
   // amy_live_start();
   amy_event e = amy_default_event();
@@ -1139,17 +1159,17 @@ void loop() {
     volume = (volumePotValue / 4095.0f) * 10.0f;
   }
 
-  snprintf(
-    envelope,
-    sizeof(envelope),
-    "%d,%d.%02d,%d,%d.%02d,%d,%d.%02d,%d,0.00",
-    timeVals[0], levelVals[0] / 100, levelVals[0] % 100,   // Attack
-    timeVals[1], levelVals[2] / 100, levelVals[2] % 100,   // Decay → sustain level
-    timeVals[2], levelVals[2] / 100, levelVals[2] % 100,   // Sustain
-    timeVals[3]                                            // Release
-  );
+  // snprintf(
+  //   envelope,
+  //   sizeof(envelope),
+  //   "%d,%d.%02d,%d,%d.%02d,%d,%d.%02d,%d,0.00",
+  //   timeVals[0], levelVals[0] / 100, levelVals[0] % 100,   // Attack
+  //   timeVals[1], levelVals[2] / 100, levelVals[2] % 100,   // Decay → sustain level
+  //   timeVals[2], levelVals[2] / 100, levelVals[2] % 100,   // Sustain
+  //   timeVals[3]                                            // Release
+  // );
 
-  Serial.println(envelope);
+  // Serial.println(envelope);
 
   updateEnvelope();
   amy_event e = amy_default_event();
